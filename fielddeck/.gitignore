@@ -7,3 +7,10 @@ test/corrupt-*/
 test/symlink-*/
 test/browser-data/
 *.tmp
+.env
+.env.*
+*.pem
+*.key
+*.log
+*.tgz
+.test-tmp/

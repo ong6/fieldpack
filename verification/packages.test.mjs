@@ -1,0 +1,25 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdtemp, mkdir, rm, readdir } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import { PROJECTS } from './harness.mjs';
+const run = promisify(execFile);
+for (const name of ['fielddeck', 'skillforge', 'proofpack']) test(`${name}: packed install works without sibling products or source checkout`, { timeout: 120000 }, async t => {
+  const temporary = await mkdtemp(path.join(tmpdir(), `${name}-install-`)); t.after(() => rm(temporary, { recursive: true, force: true }));
+  const { stdout } = await run('npm', ['pack', '--json', '--pack-destination', temporary], { cwd: path.join(PROJECTS, name) });
+  const pack = JSON.parse(stdout)[0];
+  assert.ok(!pack.files.some(f => /(^|\/)(data|node_modules|\.git|\.env)(\/|$)/.test(f.path)));
+  assert.ok(pack.files.some(f => f.path === `skills/${name}-workflow/SKILL.md`));
+  const installed = path.join(temporary, 'installed'); await mkdir(installed);
+  await run('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--prefix', installed, path.join(temporary, pack.filename)], { timeout: 90000 });
+  const bin = path.join(installed, 'node_modules/.bin', name), workspace = path.join(temporary, 'workspace');
+  const cli = async args => JSON.parse((await run(bin, args, { cwd: temporary })).stdout);
+  assert.equal((await cli(['--version'])).version, '2.0.0');
+  assert.equal((await cli(['init', '--workspace', workspace])).ok, true);
+  assert.equal((await cli([name === 'proofpack' ? 'pilot.list' : 'workspace.status', '--workspace', workspace])).ok, true);
+  const setup = await cli(['setup', '--workspace', workspace]); assert.equal(setup.mcpServers[name].args[1], 'mcp');
+  assert.ok((await readdir(workspace)).includes('.agent-workspace.json'));
+});

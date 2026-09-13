@@ -9,6 +9,8 @@ import { exportHTML } from './public/render.js';
 import { sampleDeck } from './lib/sample.js';
 import { atomicWrite, revisionOf, entryRevision, openWorkspace, preserveLegacy, regularFile, validateWorkspace, WORKSPACE_LIMITS, strictObject, boundedText, problem, detail, newEntry, metadata } from './lib/workspace.js';
 import { briefBundle, skillFiles } from './lib/zip.js';
+import { withLock } from './agent/workspace.mjs';
+import { FielddeckService } from './service.mjs';
 export { atomicWrite, revisionOf } from './lib/workspace.js';
 export const ROOT = dirname(fileURLToPath(import.meta.url));
 const PUBLIC = resolve(ROOT, 'public'), SKILL_ROOT = resolve(ROOT, 'skills');
@@ -41,7 +43,8 @@ function receive(req, maxBytes) {
     req.on('aborted', () => reject(problem(400, 'Request interrupted.')));
   });
 }
-export async function createApp({ dataDir = resolve(ROOT, 'data'), dataFile = resolve(dataDir, 'deck.json') } = {}) {
+export async function createApp({ dataDir = resolve(ROOT, 'data'), dataFile = resolve(dataDir, 'deck.json'), workspace: explicitWorkspace } = {}) {
+  if (explicitWorkspace) dataFile = resolve(explicitWorkspace, 'deck.json');
   const canonicalRoot = await realpath(ROOT);
   let ancestor = dirname(resolve(dataFile)), canonicalAncestor;
   while (true) {
@@ -49,10 +52,10 @@ export async function createApp({ dataDir = resolve(ROOT, 'data'), dataFile = re
     catch (error) { if (error.code !== 'ENOENT' || dirname(ancestor) === ancestor) throw error; ancestor = dirname(ancestor); }
   }
   dataFile = resolve(canonicalAncestor, relative(ancestor, resolve(dataFile)));
-  if (!dataFile.startsWith(canonicalRoot + '/')) throw new Error('Storage must stay within the Fielddeck directory.');
+  if (!explicitWorkspace && !dataFile.startsWith(canonicalRoot + '/')) throw new Error('Storage must stay within the Fielddeck directory.');
   if (['workspace.json', 'deck.pre-migration.json'].includes(basename(dataFile))) throw new Error('Legacy dataFile must not use a reserved workspace or backup filename.');
   const workspaceFile = resolve(dirname(dataFile), 'workspace.json'), backupFile = resolve(dirname(dataFile), 'deck.pre-migration.json');
-  let { workspace, legacy } = await openWorkspace(dataFile, workspaceFile);
+  let { workspace, legacy } = await withLock(dirname(dataFile), () => openWorkspace(dataFile, workspaceFile), { create: true });
   let writeQueue = Promise.resolve();
   const requireWorkspace = () => { if (!workspace) throw problem(409, 'Explicit legacy migration is required before opening or modifying this workspace.'); };
   const entryFor = id => { requireWorkspace(); const entry = workspace.decks.find(item => item.deck.id === id); if (!entry) throw problem(404, 'Deck not found.'); return entry; };
@@ -87,6 +90,9 @@ export async function createApp({ dataDir = resolve(ROOT, 'data'), dataFile = re
       if (!['GET', 'HEAD', 'PUT', 'POST'].includes(req.method) || (req.method === 'POST' && path !== '/api/decks' && path !== '/api/workspace/migrate' && !mutationPath.test(path))) {
         res.setHeader('Allow', 'GET, HEAD, PUT, POST'); return send(405, { error: 'Method not allowed.' });
       }
+      if (['PUT', 'POST'].includes(req.method) && origin !== `http://${req.headers.host}`) return send(403, { error: 'Saving requires a matching loopback Origin.' });
+      await withLock(dirname(dataFile), async () => {
+      ({ workspace, legacy } = await openWorkspace(dataFile, workspaceFile));
       if (req.method === 'PUT' || req.method === 'POST') {
         if (req.method === 'PUT' && path !== '/api/deck' && !(route && !route[2])) return send(404, { error: 'Not found.' });
         if (!origin || origin !== `http://${req.headers.host}`) return send(403, { error: 'Saving requires a matching loopback Origin.' });
@@ -107,59 +113,42 @@ export async function createApp({ dataDir = resolve(ROOT, 'data'), dataFile = re
             return send(200, await workspaceSummary());
           }
           requireWorkspace();
+          const service = new FielddeckService(dirname(dataFile)); service.workspace = workspace; service.legacy = legacy;
+          const finish = async (result, status = 200, extra = {}) => { workspace = service.workspace; res.setHeader('ETag', result.revision); send(status, { ...result, ...extra }); };
           if (path === '/api/decks') {
             strictObject(body, ['title', 'starter', 'brief']);
             boundedText(body.title, 140, 'Deck title');
             if (!['blank', 'sample', ...STARTERS].includes(body.starter)) throw new ValidationError('Starter must be blank, sample, or one of the three supported starter skill IDs.');
             if (workspace.decks.length >= WORKSPACE_LIMITS.decks) throw problem(409, `The library limit is ${WORKSPACE_LIMITS.decks} decks including archives. No decks were deleted.`);
-            const brief = body.brief === null ? null : validateBrief(body.brief);
-            let deck;
-            if (body.starter === 'blank') deck = { version: 1, id: 'temporary', title: body.title, slides: [{ id: 'opening', layout: 'title', title: body.title }] };
-            else if (body.starter === 'sample') deck = sampleDeck();
-            else {
-              const files = await skillFiles(SKILL_ROOT, body.starter);
-              deck = parseDeck(files.find(file => file.name === `skills/${body.starter}/assets/template.json`).data.toString('utf8'));
-            }
-            deck = validateDeck({ ...deck, id: `d-${randomUUID()}`, title: body.title, audience: brief ? brief.audience : deck.audience });
-            const entry = newEntry(deck, brief), next = structuredClone(workspace); next.decks.push(entry); await commit(next);
-            return sendDetail(entryFor(deck.id), 201);
+            return finish(await service.create(body), 201);
           }
           const id = path === '/api/deck' ? workspace.primaryDeckId : route[1], entry = entryFor(id);
           match(expected, entryRevision(entry));
-          const next = structuredClone(workspace), target = next.decks.find(item => item.deck.id === id);
-          const action = route?.[2]; let createdCheckpoint;
+          const action = route?.[2];
           if (req.method === 'PUT') {
             if (entry.archived) throw problem(409, 'This deck is archived. Unarchive it before editing.');
             let deck, brief;
-            if (path === '/api/deck') { deck = validateDeck(body); brief = target.brief; }
+            if (path === '/api/deck') { deck = validateDeck(body); brief = entry.brief; }
             else { strictObject(body, ['deck', 'brief']); deck = validateDeck(body.deck); brief = body.brief === null ? null : validateBrief(body.brief); }
             if (deck.id !== id) throw new ValidationError('Deck ID must match the saved deck ID in the request path.');
-            target.deck = deck; target.brief = brief;
+            return finish(await service.update({ id, revision: expected, deck, brief }));
           } else if (action === 'duplicate') {
             strictObject(body, ['title']); boundedText(body.title, 140, 'Deck title');
-            if (next.decks.length >= WORKSPACE_LIMITS.decks) throw problem(409, `The library limit is ${WORKSPACE_LIMITS.decks} decks including archives. No decks were deleted.`);
-            const copy = newEntry({ ...structuredClone(entry.deck), id: `d-${randomUUID()}`, title: body.title }, structuredClone(entry.brief));
-            next.decks.push(copy); await commit(next); return sendDetail(entryFor(copy.deck.id), 201);
+            return finish(await service.duplicate({ id, revision: expected, title: body.title }), 201);
           } else if (action === 'archive') {
             strictObject(body, ['archived']);
             if (typeof body.archived !== 'boolean') throw new ValidationError('archived must be a boolean.');
-            target.archived = body.archived;
+            return finish(await service.archive({ id, revision: expected, archived: body.archived }));
           } else if (action === 'checkpoints') {
             if (entry.archived) throw problem(409, 'This deck is archived. Unarchive it before creating or restoring checkpoints.');
             if (route[4] === 'restore') {
               strictObject(body, ['confirm']); if (body.confirm !== true) throw new ValidationError('Restore requires confirm: true.');
-              const checkpoint = target.checkpoints.find(item => item.id === route[3]); if (!checkpoint) throw problem(404, 'Checkpoint not found.');
-              target.deck = structuredClone(checkpoint.deck); target.brief = structuredClone(checkpoint.brief);
+              return finish(await service.restore({ id, revision: expected, checkpointId: route[3], confirm: true }));
             } else {
               strictObject(body, ['name']); boundedText(body.name, WORKSPACE_LIMITS.checkpointName, 'Checkpoint name');
-              if (target.checkpoints.length >= WORKSPACE_LIMITS.checkpointsPerDeck) throw problem(409, `This deck has reached the limit of ${WORKSPACE_LIMITS.checkpointsPerDeck} checkpoints. Existing checkpoints were preserved.`);
-              createdCheckpoint = { id: `cp-${randomUUID()}`, name: body.name, createdAt: new Date().toISOString(), deck: structuredClone(target.deck), brief: structuredClone(target.brief) };
-              target.checkpoints.push(createdCheckpoint);
+              const result = await service.checkpoint({ id, revision: expected, name: body.name }); return finish(result, 200, { checkpoint: result.checkpoints.at(-1) });
             }
           } else throw problem(404, 'Not found.');
-          if (target.counter >= Number.MAX_SAFE_INTEGER) throw problem(409, 'This deck reached its revision limit. Duplicate it to continue editing.');
-          target.counter++; await commit(next);
-          return sendDetail(entryFor(id), 200, createdCheckpoint ? { checkpoint: metadata(createdCheckpoint) } : {});
         });
         writeQueue = job.catch(() => {}); await job; return;
       }
@@ -197,7 +186,7 @@ export async function createApp({ dataDir = resolve(ROOT, 'data'), dataFile = re
       }
       const file = staticFiles.get(path); if (!file) return send(404, { error: 'Not found.' });
       return send(200, await readFile(resolve(PUBLIC, file)), mime[extname(file)]);
-    } catch (error) {
+    }); } catch (error) {
       const status = error.status || (error instanceof ValidationError ? 400 : 500);
       if (status === 500) console.error('Fielddeck request failed:', error.message);
       send(status, { error: status === 500 ? 'Could not complete the request. Your previous saved workspace is preserved; check the server terminal.' : error.message });
@@ -210,7 +199,7 @@ export const createServer = createApp;
 export async function start(port = 4311, options = {}) {
   const server = await createApp(options);
   await new Promise((accept, reject) => { server.once('error', reject); server.listen(port, '127.0.0.1', accept); });
-  console.log(`Fielddeck is ready at http://127.0.0.1:${server.address().port}\nWorkspace storage: ${resolve(dirname(options.dataFile || resolve(options.dataDir || resolve(ROOT, 'data'), 'deck.json')), 'workspace.json')}\nPress Ctrl+C to stop. No cloud services or runtime dependencies.`);
+  console.log(`Fielddeck is ready at http://127.0.0.1:${server.address().port}\nWorkspace storage: ${resolve(dirname(options.dataFile || resolve(options.dataDir || resolve(ROOT, 'data'), 'deck.json')), 'workspace.json')}\nPress Ctrl+C to stop. No cloud services .`);
   for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => { server.close(() => process.exit(0)); server.closeIdleConnections(); });
   return server;
 }

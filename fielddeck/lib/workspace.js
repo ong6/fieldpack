@@ -90,6 +90,8 @@ export async function openWorkspace(dataFile, workspaceFile) {
   try { workspace = validateWorkspace(JSON.parse((await regularFile(workspaceFile, WORKSPACE_LIMITS.workspaceBytes)).toString('utf8'))); }
   catch (error) { if (error.code !== 'ENOENT') throw new Error(`Cannot load workspace; original file has been preserved. ${error.message}`); }
   if (!workspace && !legacy) {
+    const marked = await lstat(`${dirname(workspaceFile)}/.agent-workspace.json`).then(() => true, error => { if (error.code === 'ENOENT') return false; throw error; });
+    if (marked) throw new Error('Initialized workspace state is missing. Recover it from a private backup; it will not be reset.');
     const deck = sampleDeck();
     workspace = validateWorkspace({ version: 2, primaryDeckId: deck.id, decks: [newEntry(deck)] });
     await atomicWrite(workspaceFile, workspace);

@@ -167,7 +167,7 @@ test('storage rejects outside paths and symlink escapes', async t => {
   await symlink('/tmp', resolve(directory, 'escape')); await assert.rejects(createApp({ dataFile: resolve(directory, 'escape/deck.json') }), /within/);
 });
 test('configurable dataDir accepts the approved symlink path', async t => {
-  const directory = await mkdtemp('/home/jun.ong/Sideproject/fielddeck/test/run-');
+  const directory = await mkdtemp(resolve(ROOT, 'test/run-'));
   t.after(() => rm(directory, { recursive: true, force: true }));
   const server = await createApp({ dataDir: directory });
   assert.equal(JSON.parse(await readFile(resolve(directory, 'workspace.json'), 'utf8')).decks[0].deck.slides.length, 6);
@@ -175,6 +175,6 @@ test('configurable dataDir accepts the approved symlink path', async t => {
   server.close();
 });
 test('CLI help works through the requested /home path and invalid flags fail', async () => {
-  const { stdout } = await run(process.execPath, ['/home/jun.ong/Sideproject/fielddeck/server.js', '--help']); assert.match(stdout, /127.0.0.1:4311/); assert.match(stdout, /npm test/);
+  const { stdout } = await run(process.execPath, [resolve(ROOT, 'server.js'), '--help']); assert.match(stdout, /127.0.0.1:4311/); assert.match(stdout, /npm test/);
   await assert.rejects(run(process.execPath, [resolve(ROOT, 'server.js'), '--host', '0.0.0.0']), error => error.code === 1 && /Invalid arguments/.test(error.stderr));
 });

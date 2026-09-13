@@ -1,0 +1,36 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { randomUUID } from 'node:crypto';
+import { product as skillforge } from '../skillforge/agent/product.mjs';
+import { product as proofpack } from '../proofpack/agent/product.mjs';
+import { product as fielddeck } from '../fielddeck/agent/product.mjs';
+import { createApp } from '../proofpack/server.js';
+import { launchBrowser } from './harness.mjs';
+test('headless report to evidence to presentation preserves uncertainty and privacy; UI exposes proposals', async t => {
+  const root = await mkdtemp(path.join(tmpdir(), 'agent-pipeline-')); t.after(() => rm(root, { recursive: true, force: true }));
+  const call = product => async (name, input = {}) => (await product.execute(name, input, { workspace: path.join(root, product.name) })).data;
+  for (const p of [skillforge, proofpack, fielddeck]) { await mkdir(path.join(root, p.name)); await p.init({ workspace: path.join(root, p.name) }); }
+  const sf = call(skillforge), pp = call(proofpack), fd = call(fielddeck);
+  const candidate = (await sf('skill.search', { query: 'evidence' })).items[0];
+  const bundle = (await sf('evaluation.create', { expectedRevision: 0, payload: { title: 'Fictional pilot, no runs', candidateIds: [candidate.id], model: { id: 'unexecuted-fixture', capabilities: [] }, conditions: { systemPrompt: 'Use supplied evidence.', temperature: 0, tools: 'none', environment: 'test only', judge: 'not yet judged', repetitions: 1, maxOutputTokens: 100 }, cases: [{ id: 'missing', input: 'No measurements supplied.', expected: 'Identify missing measurements.' }] } })).bundle;
+  const report = (await sf('evaluation.report', { id: bundle.id })).report; assert.equal(report.status, 'insufficient-evidence');
+  const pilotId = (await pp('pilot.list')).defaultPilotId;
+  const rev = async () => (await pp('pilot.get', { pilotId })).project.revision;
+  await pp('record.edit', { pilotId, revision: await rev(), section: 'charter', action: 'update', record: { title: 'Fictional pilot', customer: 'Test organization', internalNotes: 'PRIVATE_PIPELINE_SENTINEL' } });
+  await pp('record.edit', { pilotId, revision: await rev(), section: 'evidence', action: 'add', recordId: 'report', record: { name: 'Conditional report', summary: 'No evaluation runs yet; insufficient evidence.', source: 'Skillforge', owner: 'Test agent', collectedAt: new Date().toISOString().slice(0, 10), staleAfterDays: 30, visibility: 'customer' } });
+  await writeFile(path.join(root, 'proofpack/report.json'), JSON.stringify(report));
+  await pp('attachment.add', { pilotId, revision: await rev(), evidenceId: 'report', file: 'report.json', name: 'report.json' });
+  await pp('review.propose', { pilotId, revision: await rev(), outcome: 'hold', rationale: 'Wait for actual measurements.', actor: 'pipeline-agent' });
+  const handoff = await pp('pilot.export', { pilotId, format: 'fielddeck' }); const deck = JSON.parse(Buffer.from(handoff.artifact.base64, 'base64'));
+  assert.ok(!JSON.stringify(deck).includes('PRIVATE_PIPELINE_SENTINEL')); assert.ok(!JSON.stringify(deck).includes('pipeline-agent'));
+  const created = await fd('deck.create', { title: 'Fictional decision readout', deck, requestId: randomUUID() });
+  const html = Buffer.from((await fd('deck.export', { id: created.deck.id })).artifact.base64, 'base64').toString(); assert.ok(html.includes('insufficient evidence')); assert.ok(!html.includes('PRIVATE_PIPELINE_SENTINEL'));
+  const pdf = Buffer.from((await fd('deck.render', { id: created.deck.id, format: 'pdf' })).artifact.base64, 'base64'); assert.equal(pdf.subarray(0, 4).toString(), '%PDF');
+  const { server } = await createApp({ workspace: path.join(root, 'proofpack') }); await new Promise(r => server.listen(0, '127.0.0.1', r)); t.after(() => { server.closeAllConnections(); return new Promise(r => server.close(r)); });
+  const browser = await launchBrowser(); t.after(() => browser.close()); const page = await browser.newPage();
+  await page.goto(`http://127.0.0.1:${server.address().port}/?pilot=${pilotId}#decisions`);
+  await page.getByRole('region', { name: 'Agent proposals' }).waitFor(); assert.match(await page.getByRole('region', { name: 'Agent proposals' }).innerText(), /pipeline-agent/);
+});

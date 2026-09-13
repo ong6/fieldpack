@@ -244,7 +244,8 @@ test('failed atomic workspace replacement preserves prior state, revision, and d
   const f = await fixture(t), entry = await getPrimary(f), bytes = await readFile(f.workspaceFile), held = resolve(f.directory, 'held-workspace.json');
   await rename(f.workspaceFile, held); await mkdir(f.workspaceFile);
   const response = await save(f, entry, { deck: { ...entry.deck, title: 'Must not commit' } }); assert.equal(response.status, 500);
-  assert.equal((await getPrimary(f)).revision, entry.revision); assert.equal((await getPrimary(f)).deck.title, entry.deck.title); assert.deepEqual(await readFile(held), bytes);
+  // All interfaces reload current state: corrupt storage must fail closed, not serve a stale snapshot.
+  assert.equal((await f.req('/api/workspace')).status, 500); assert.deepEqual(await readFile(held), bytes);
   assert.ok(!(await readdir(f.directory)).some(name => name.endsWith('.tmp')));
   await rm(f.workspaceFile, { recursive: true }); await rename(held, f.workspaceFile);
   assert.equal((await save(f, entry, { deck: { ...entry.deck, title: 'Retry commits' } })).status, 200);
@@ -264,7 +265,7 @@ test('HTTP workspace byte limit rejects additions atomically without pruning sav
 });
 test('renderer fingerprint reflects live file changes without restarting an isolated runtime', async t => {
   const directory = await mkdtemp(resolve(ROOT, 'test/renderer-runtime-')); t.after(() => rm(directory, { recursive: true, force: true }));
-  for (const name of ['server.js', 'public', 'lib', 'package.json']) await cp(resolve(ROOT, name), resolve(directory, name), { recursive: true });
+  for (const name of ['server.js', 'service.mjs', 'agent', 'public', 'lib', 'package.json']) await cp(resolve(ROOT, name), resolve(directory, name), { recursive: true });
   const script = `import { createApp, ROOT } from './server.js'; import { appendFile } from 'node:fs/promises'; import { resolve } from 'node:path'; const server = await createApp({ dataDir: resolve(ROOT, 'data') }); await new Promise(r => server.listen(0, '127.0.0.1', r)); try { const url = 'http://127.0.0.1:' + server.address().port + '/api/workspace'; const before = await (await fetch(url)).json(); await appendFile(resolve(ROOT, 'public/slide.css'), '\\n/* fingerprint probe */\\n'); const after = await (await fetch(url)).json(); if (before.rendererRevision === after.rendererRevision) throw new Error('stale renderer fingerprint'); console.log('live hash verified'); } finally { server.closeAllConnections(); await new Promise(r => server.close(r)); }`;
   const { stdout } = await promisify(execFile)(process.execPath, ['--input-type=module', '-e', script], { cwd: directory }); assert.match(stdout, /live hash verified/);
 });

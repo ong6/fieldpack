@@ -1,0 +1,7 @@
+import { z } from 'zod';
+const text = max => z.string().max(max).default('');
+const id = z.string().regex(/^[A-Za-z0-9_-]{1,80}$/);
+const label = z.enum(['evidence', 'assumption', 'proposal']).default('assumption');
+export const slide = z.strictObject({ id, layout: z.enum(['title', 'findings', 'architecture', 'comparison', 'results', 'next-steps']), title: text(140), eyebrow: text(80), subtitle: text(360), label, source: text(400), notes: text(8000), points: z.array(z.strictObject({ text: text(400), labelType: label, source: text(400) })).max(6).default([]), nodes: z.array(z.strictObject({ name: text(80), detail: text(240) })).max(5).default([]), columns: z.array(z.strictObject({ heading: text(80), body: text(700) })).max(3).default([]), metrics: z.array(z.strictObject({ value: text(40), label: text(120), source: text(400) })).max(4).default([]), actions: z.array(z.strictObject({ text: text(240), owner: text(80), date: text(80) })).max(6).default([]) });
+export const deck = z.strictObject({ version: z.literal(1), id, title: z.string().min(1).max(140), subtitle: text(360), audience: text(160), theme: z.enum(['navy', 'cream', 'coral']).default('navy'), slides: z.array(slide).min(1).max(30) });
+export const brief = z.strictObject({ version: z.literal(1), skill: z.enum(['fde-discovery-narrative', 'fde-technical-architecture', 'fde-pilot-readout', 'fde-deck-review']), audience: z.string().max(160), decision: z.string().max(1000), constraints: z.string().max(2000), evidenceGaps: z.string().max(2000) });
