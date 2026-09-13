@@ -1,4 +1,0 @@
-interface:
-  display_name: "Fielddeck agent workflow"
-  short_description: "Create and verify decision-ready slide decks"
-  default_prompt: "Use $fielddeck-workflow to create and verify a presentation from supplied evidence."

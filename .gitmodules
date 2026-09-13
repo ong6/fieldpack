@@ -1,0 +1,9 @@
+[submodule "fielddeck"]
+	path = fielddeck
+	url = https://github.com/ong6/fielddeck.git
+[submodule "skillforge"]
+	path = skillforge
+	url = https://github.com/ong6/skillforge.git
+[submodule "proofpack"]
+	path = proofpack
+	url = https://github.com/ong6/proofpack.git
