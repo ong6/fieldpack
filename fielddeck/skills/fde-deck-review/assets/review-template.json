@@ -1,0 +1,23 @@
+{
+  "review_type": "fielddeck-editorial-review",
+  "deck_title": "Replace with reviewed deck title",
+  "audience_and_decision": "State the audience and requested decision",
+  "top_changes": [],
+  "findings": [
+    {
+      "severity": "blocker | important | polish",
+      "slide_id": "Replace with stable slide ID",
+      "slide_number": 1,
+      "category": "evidence | narrative | technical | density | accessibility | action",
+      "quoted_claim": "Exact text from the reviewed artifact",
+      "issue": "Explain the specific problem without inventing facts",
+      "proposed_fix": "Concrete revision or evidence request",
+      "verification": "State what source or measurement supports the finding"
+    }
+  ],
+  "verification_limits": [
+    "State whether sources were independently checked.",
+    "If only JSON was reviewed, rendered overflow, contrast, and print clipping were not measured."
+  ],
+  "ready_to_share": false
+}

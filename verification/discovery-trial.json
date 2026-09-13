@@ -1,0 +1,226 @@
+{
+  "version": 1,
+  "id": "intake-discovery-measurement-pilot",
+  "title": "Intake discovery: authorize measurement, not deployment",
+  "subtitle": "Fictional executive readout; interview disagreement and impact uncertainty remain open.",
+  "audience": "Executive sponsor and intake workflow stakeholders",
+  "theme": "navy",
+  "slides": [
+    {
+      "id": "bounded-decision",
+      "layout": "title",
+      "eyebrow": "DISCOVERY / DECISION REQUEST",
+      "title": "Authorize a two-week measurement pilot, not a savings promise",
+      "subtitle": "The sponsor's $1m annual savings request is unsupported. Authorize measurement only, not purchase or deployment. Owners and start date remain TBD — confirm.",
+      "label": "proposal",
+      "source": "[B1] User-provided fictional task brief: sponsor request, authorized decision scope and missing commitments; date not supplied.",
+      "notes": "Purpose: obtain a bounded learning commitment, not approval of a financial case. The $1m figure is a sponsor request, not a measured result, forecast, target accepted by the team, or supported estimate. No verbatim interview quotes were supplied or are used.\n\nSource key: [I1] user-provided summary of two support interviews; [I2] user-provided summary of one engineering interview; [L1] user-provided summary of six observed tasks. [B1] denotes the user's task brief, not a separate research document. Interview and observation dates, transcripts, task definitions and raw records were not provided. Citations refer to these supplied summaries only.\n\nEvidence ledger prepared before the narrative:\nClaim: support participants report painful context switching. Locator: [I1], both support interviews. Type: observed interview report, not measured workflow impact. Limits: two interviews; recruitment and independence of experiences unknown. Counterevidence: [I2] ranks integrations and permission reviews above this concern.\nClaim: engineering prioritizes integrations and permission reviews. Locator: [I2], one engineering interview. Type: observed interview report, not demonstrated time contribution. Limits: one perspective, not an engineering-wide consensus. Counterevidence: [I1] emphasizes context switching.\nClaim: six observed tasks range from 3 to 11 minutes. Locator: [L1], supplied task-observation summary. Type: observed timing report. Limits: explicitly nonrepresentative; no raw durations, before/after baseline or causal attribution. Counterexample: unobserved tasks could differ; none was supplied.\nClaim: annual savings are unknown. Locator: [B1], no labor rate, annual volume or savings measurement; [L1], no before/after baseline. Type: evidence about missing inputs, not evidence of zero opportunity. Limits: financial impact cannot be estimated from these materials. Counterevidence: sponsor's requested number is not measurement evidence.\nClaim: measurement may clarify the priority. Locator: proposed synthesis from [I1], [I2], [L1]. Type: unvalidated assumption. Limits: feasibility and coverage remain unconfirmed. Counterexample: the pilot may fail to yield adequate data or may indicate a different bottleneck.\nClaim: the decision is limited to a two-week measurement pilot. Locator: [B1]. Type: supplied decision constraint. Limits: owners and start date unconfirmed; authorization is not asserted to have occurred.",
+      "points": [],
+      "nodes": [],
+      "columns": [],
+      "metrics": [],
+      "actions": []
+    },
+    {
+      "id": "competing-perspectives",
+      "layout": "findings",
+      "eyebrow": "01 / CURRENT WORKFLOW AND FRICTION",
+      "title": "Support and engineering describe different intake priorities",
+      "subtitle": "The supplied evidence does not establish a shared bottleneck or an end-to-end workflow map.",
+      "label": "evidence",
+      "source": "[I1] Two support interview summaries; [I2] one engineering interview summary; [B1] supplied evidence scope. Dates and detailed workflow steps not supplied.",
+      "notes": "These are paraphrases of supplied summaries, not quotes. Both support interviews mention context switching, but repetition does not establish independent corroboration, frequency across the workforce, or a measurable loss. The engineering participant explicitly ranks integrations and permission reviews as more important. Preserve this disagreement rather than presenting three interviews as consensus. Different roles or task types could explain it, but that explanation remains a hypothesis. No actual intake sequence, tools, handoff count, exception path or system architecture was provided; do not draw a fictional current-state workflow. The pilot should document the workflow before attributing friction to a specific step.",
+      "points": [
+        {
+          "text": "Both support interviews report painful context switching; its frequency and time contribution are unknown.",
+          "labelType": "evidence",
+          "source": "[I1] User-supplied summaries, two support interviews; dates and quantified impact not supplied."
+        },
+        {
+          "text": "One engineering interview says integrations and permission reviews matter more. This competing priority remains unresolved.",
+          "labelType": "evidence",
+          "source": "[I2] User-supplied summary, one engineering interview; date and quantified impact not supplied."
+        },
+        {
+          "text": "Workflow steps, task mix and the causes of elapsed time are not established by the supplied evidence.",
+          "labelType": "evidence",
+          "source": "[B1] Available evidence is limited to [I1], [I2] and [L1]; no detailed workflow map or time attribution supplied."
+        }
+      ],
+      "nodes": [],
+      "columns": [],
+      "metrics": [],
+      "actions": []
+    },
+    {
+      "id": "impact-is-unknown",
+      "layout": "findings",
+      "eyebrow": "02 / IMPACT AND LIMITS",
+      "title": "Six task timings do not establish savings or typical performance",
+      "subtitle": "Annual financial impact is unknown, not zero; the sponsor's requested figure is not an evidence-backed estimate.",
+      "label": "evidence",
+      "source": "[L1] Six observed tasks, 3–11 minutes, nonrepresentative and without a before/after baseline; [B1] missing financial inputs and sponsor request.",
+      "notes": "The endpoints of a range do not reveal the mean, median, distribution or recoverable time. Do not calculate an average from 3 and 11, annualize this sample, or treat all task time as waste. The six tasks are explicitly not representative. No intervention comparison or before/after baseline exists, so these timings demonstrate neither improvement nor causality. Even a later elapsed-time reduction would not automatically imply released capacity or cash savings. The present pilot is measurement-only; it cannot validate annual savings through a nonexistent treatment comparison. Financial modeling would require separately supported volume, relevant cost assumptions and measured recoverable change.",
+      "points": [
+        {
+          "text": "Six observed tasks took 3–11 minutes. The sample is not representative; the range is not a typical task-time estimate.",
+          "labelType": "evidence",
+          "source": "[L1] Supplied observation summary; six tasks; dates, selection method and raw durations not supplied."
+        },
+        {
+          "text": "There is no before/after baseline or savings measurement; improvement and recoverable time are unmeasured.",
+          "labelType": "evidence",
+          "source": "[L1] No before/after baseline; [B1] no savings measurement exists."
+        },
+        {
+          "text": "No labor rate or annual volume exists in the supplied evidence. The requested $1m annual savings cannot be substantiated.",
+          "labelType": "evidence",
+          "source": "[B1] Sponsor requests $1m annual savings; labor rate, annual volume and savings measurement are absent."
+        }
+      ],
+      "nodes": [],
+      "columns": [],
+      "metrics": [],
+      "actions": []
+    },
+    {
+      "id": "bounded-opportunity",
+      "layout": "findings",
+      "eyebrow": "03 / OPPORTUNITY TO TEST",
+      "title": "Test competing explanations before selecting an intervention",
+      "subtitle": "The opportunity is to learn which friction merits a later test, not to justify a predetermined solution.",
+      "label": "proposal",
+      "source": "Proposed interpretation and bounded response to [I1], [I2], [L1]; measurement-only decision scope from [B1].",
+      "notes": "The first two points are explicitly hypotheses, not new findings. Interview pain may or may not correspond to a meaningful share of measured time, and the engineering concern may describe implementation feasibility rather than task duration. The measurement design must therefore preserve both workflow observations and feasibility concerns. Do not force all evidence into a single time metric. No vendor, integration build, permission expansion, automation or production change is recommended. The smallest useful experiment is to observe the existing workflow under an agreed measurement protocol and decide whether any further experiment is warranted.",
+      "points": [
+        {
+          "text": "Hypothesis: context switching materially contributes to intake friction. Interview reports alone do not establish its time contribution.",
+          "labelType": "assumption",
+          "source": "Hypothesis inferred from [I1]; not measured by [L1]."
+        },
+        {
+          "text": "Competing hypothesis: integrations and permission reviews are the more important constraint, even if context switching is painful.",
+          "labelType": "assumption",
+          "source": "Hypothesis inferred from [I2]; priority differs from [I1] and is not validated by [L1]."
+        },
+        {
+          "text": "Use a two-week measurement-only pilot to compare these explanations. Make no purchase, deployment or savings commitment.",
+          "labelType": "proposal",
+          "source": "Proposed response to [I1], [I2], [L1]; two-week measurement authorization boundary specified in [B1]."
+        }
+      ],
+      "nodes": [],
+      "columns": [],
+      "metrics": [],
+      "actions": []
+    },
+    {
+      "id": "measurement-design",
+      "layout": "findings",
+      "eyebrow": "04 / PROPOSED PILOT",
+      "title": "Collect a scoped baseline without changing the live workflow",
+      "subtitle": "Proposed duration: two weeks. Start date and accountable owner: TBD — confirm. No launch before scope and access are agreed.",
+      "label": "proposal",
+      "source": "Proposed measurement design addressing limits in [I1], [I2], [L1]; duration and missing commitments from [B1].",
+      "notes": "This is a prospective plan, not a claim that data collection has started. Confirm a single accountable owner, necessary participation and an authorized start date before launch. Agree task boundaries and sampling coverage across relevant roles, task types and exception paths, without asserting that the historical six tasks meet those requirements. Define active handling and waiting separately, record incomplete tasks, and preserve overlapping causes rather than double-counting elapsed time. Use only approved observation and recording methods; collect no unnecessary identifiers. Ask participants whether integration and permission concerns reflect delay, feasibility, governance or another constraint. Record their explanations without manufacturing quotes. A two-week window may not capture enough variation; if it does not, report the limitation rather than generalizing. This baseline describes a scoped current state; it is not a before/after result or annual savings measurement.",
+      "points": [
+        {
+          "text": "Before launch, agree task boundaries, role and task-type coverage, timing definitions and minimum usable-data criteria.",
+          "labelType": "proposal",
+          "source": "Proposed baseline protocol; [L1] has a nonrepresentative sample and no supplied timing definitions."
+        },
+        {
+          "text": "Observe eligible tasks using authorized methods. Record elapsed time, active work, waiting, context switches and relevant blockers.",
+          "labelType": "proposal",
+          "source": "Proposed data collection to test [I1] against [I2]; [L1] does not attribute task time."
+        },
+        {
+          "text": "Map the observed workflow and compare support and engineering perspectives; distinguish measured delay from feasibility concerns.",
+          "labelType": "proposal",
+          "source": "Proposed reconciliation of [I1] and [I2]; detailed workflow and the basis of engineering priority are not supplied."
+        },
+        {
+          "text": "Return a scoped baseline, coverage limits and unresolved disagreements. Do not extrapolate annual savings or claim improvement.",
+          "labelType": "proposal",
+          "source": "Proposed readout constrained by [L1] sample limits and [B1] missing savings inputs."
+        }
+      ],
+      "nodes": [],
+      "columns": [],
+      "metrics": [],
+      "actions": []
+    },
+    {
+      "id": "success-and-stop-gates",
+      "layout": "findings",
+      "eyebrow": "05 / SUCCESS AND STOP CRITERIA",
+      "title": "Judge the pilot by usable evidence, not a promised ROI",
+      "subtitle": "Proposed gates must be agreed before launch; thresholds and commitments are not yet approved.",
+      "label": "proposal",
+      "source": "Proposed decision gates responding to [I1]/[I2] disagreement, [L1] limits and [B1] measurement-only authorization scope.",
+      "notes": "Success means an auditable learning result, not a favorable result for context switching. Before collection, define adequate coverage, usable-record criteria and how to compare the competing explanations; no numerical threshold has been supplied or invented. Retain disagreements that cannot be resolved by observation. If the data meet the agreed criteria but do not support prioritizing context switching, deprioritize that hypothesis rather than reframe weak data as confirmation. If integration or permission constraints block a feasible intervention, do not recommend that intervention simply because task friction is observed. Lack of adequate data is inconclusive, not proof of no opportunity. Stop unauthorized collection immediately. Do not extend the pilot automatically; request separate authorization for any extension, intervention test, purchase or deployment. A later controlled improvement test, if proposed, would require its own design and decision.",
+      "points": [
+        {
+          "text": "Success: meet the agreed coverage and data-quality criteria, with traceable observations and an explicit account of both perspectives.",
+          "labelType": "proposal",
+          "source": "Proposed success criterion; addresses [L1] representativeness limits and [I1]/[I2] disagreement."
+        },
+        {
+          "text": "Do not start without an owner, start date, approved access and agreed measurement criteria. Stop if collection exceeds approved access.",
+          "labelType": "proposal",
+          "source": "Proposed launch and access gates; [B1] states owners and start date are unconfirmed."
+        },
+        {
+          "text": "At two weeks, insufficient coverage or unreliable timing means inconclusive: stop and report limits, with no automatic extension.",
+          "labelType": "proposal",
+          "source": "Proposed stop criterion; [B1] limits the requested pilot to two weeks; [L1] warns against unsupported generalization."
+        },
+        {
+          "text": "If adequate evidence favors another constraint, deprioritize context switching. Any later intervention needs a separate decision.",
+          "labelType": "proposal",
+          "source": "Proposed disconfirmation gate; [I2] challenges the priority suggested by [I1]; [B1] excludes purchase and deployment."
+        }
+      ],
+      "nodes": [],
+      "columns": [],
+      "metrics": [],
+      "actions": []
+    },
+    {
+      "id": "authorize-learning-only",
+      "layout": "next-steps",
+      "eyebrow": "06 / THE BOUNDED ASK",
+      "title": "Approve measurement only; reserve any deployment decision",
+      "subtitle": "Authorize a two-week pilot conditional on confirmed ownership, start date, scope and access. No purchase, deployment, automatic extension or $1m savings commitment.",
+      "label": "proposal",
+      "source": "[B1] Requested decision: authorize a two-week measurement pilot, not buy or deploy; owners and start date unconfirmed. Actions below are proposed, not commitments.",
+      "notes": "Ask the sponsor for authorization of the bounded measurement scope, not endorsement of a savings number. Authorization does not mean the pilot can start immediately: accountable ownership, participation, access, coverage and measurement criteria must first be confirmed. All action owners and calendar dates are intentionally TBD — confirm; relative gates in action text are proposed sequencing, not scheduled commitments. If the required resources or access cannot be agreed, return to the sponsor rather than launch by default. At the end of the authorized two-week window, return the evidence and choose among closing the hypothesis, requesting additional measurement, or proposing a separately authorized intervention test. Do not convert a baseline into a deployment or financial approval. Outstanding evidence gaps include representative task coverage, time attribution, the basis of the engineering priority, annual volume, labor rate and measured recoverable change. None is filled by the sponsor's desired number.",
+      "points": [],
+      "nodes": [],
+      "columns": [],
+      "metrics": [],
+      "actions": [
+        {
+          "text": "Authorize only the two-week measurement scope and explicitly exclude purchase, deployment and savings commitments.",
+          "owner": "TBD — confirm",
+          "date": "TBD — confirm"
+        },
+        {
+          "text": "Before launch, confirm the accountable owner, participation, start date and authorized observation access.",
+          "owner": "TBD — confirm",
+          "date": "TBD — confirm"
+        },
+        {
+          "text": "Before launch, agree task coverage, timing definitions, usable-data criteria and success/stop gates.",
+          "owner": "TBD — confirm",
+          "date": "TBD — confirm"
+        },
+        {
+          "text": "At the end of the two-week pilot, review baseline evidence and disagreement; seek separate approval for any further work.",
+          "owner": "TBD — confirm",
+          "date": "TBD — confirm"
+        }
+      ]
+    }
+  ]
+}

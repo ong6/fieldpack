@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "id": "pilot-readout-starter",
+  "title": "Pilot readout: evidence before expansion",
+  "subtitle": "Replace placeholders with measured results and visible limitations",
+  "audience": "Pilot sponsor and operating owners",
+  "theme": "navy",
+  "slides": [
+    { "id": "decision", "layout": "title", "eyebrow": "PILOT / READOUT", "title": "State the bounded decision the pilot supports", "subtitle": "Do not imply a positive outcome until the data supports it.", "label": "assumption", "source": "Template only — no pilot measurements supplied" },
+    { "id": "scope", "layout": "findings", "eyebrow": "01 / TEST SCOPE", "title": "Define what was tested and what was excluded", "label": "assumption", "points": [ { "text": "Record cohort, baseline, measurement window, task selection, and manual assistance.", "labelType": "assumption", "source": "TBD — experiment protocol" }, { "text": "List the pre-agreed success and stop gates; distinguish retrospective targets.", "labelType": "assumption", "source": "TBD — signed pilot criteria" } ] },
+    { "id": "outcomes", "layout": "results", "eyebrow": "02 / OUTCOMES", "title": "Report measured outcomes with their limits", "subtitle": "Missing data is not a zero value.", "label": "assumption", "metrics": [ { "value": "Not measured", "label": "Primary metric · baseline and window unknown", "source": "TBD — sample, method, exclusions, source locator" }, { "value": "Not measured", "label": "Quality or safety gate · denominator unknown", "source": "TBD — evaluation rubric and failure review" } ], "notes": "Replace only with verified values. Show calculations and distinguish percentage points from relative percent change. Keep baseline/sample/window visible." },
+    { "id": "limits", "layout": "findings", "eyebrow": "03 / LIMITATIONS", "title": "Keep failure modes in the decision", "label": "assumption", "points": [ { "text": "Record failures, adverse outcomes, and unrepresentative cases without hiding them in notes.", "labelType": "assumption", "source": "TBD — incident and evaluation evidence" }, { "text": "Avoid causal, statistical, ROI, or production-readiness claims unsupported by the study design.", "labelType": "proposal", "source": "Proposed reporting guardrail" } ] },
+    { "id": "next", "layout": "next-steps", "eyebrow": "04 / NEXT DECISION", "title": "Choose stop, extend, or bounded expansion", "label": "proposal", "actions": [ { "text": "Resolve evidence gaps and unmet hard gates before expansion", "owner": "TBD — pilot owner", "date": "TBD — agree review date" }, { "text": "Approve cohort, rollback criteria, and accountable operating owner", "owner": "TBD — sponsor", "date": "TBD — agree date" } ] }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "personal-project-verification",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test *.test.mjs"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.11.1",
+    "playwright": "1.63.0"
+  }
+}

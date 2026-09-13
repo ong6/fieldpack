@@ -1,0 +1,20 @@
+FIELDDECK JSON v1 — portable format reference
+
+Copy assets/template.json and produce a single JSON object without comments, HTML, executable code, or unknown fields. No tools or network are needed to author it. Import using the studio's Import control; export the previous deck as backup first.
+
+Deck keys: version (exactly 1), id (1–80 ASCII letters/digits/_/-), title (nonblank, max 140), subtitle (max 360), audience (max 160), theme (navy|cream|coral), slides (1–30). Limit 1 MiB UTF-8.
+Slide keys: id (same rule, unique), layout (title|findings|architecture|comparison|results|next-steps), eyebrow (max 80), title (140), subtitle (360), label (evidence|assumption|proposal), source (400), notes (8000), points, nodes, columns, metrics, actions. Version, deck title, IDs, layout, and slides are required. Missing optional strings/arrays become empty; missing label becomes assumption, missing theme navy. Do not use null or unknown fields, including prototype-related keys.
+
+Arrays (all row fields are plain strings):
+points <=6 rows {text: max400, labelType: evidence|assumption|proposal, source: max400}
+nodes <=5 rows {name: max80, detail: max240}; linear left-to-right flow
+columns <=3 rows {heading: max80, body: max700}; newlines supported
+metrics <=4 rows {value: max40, label: max120, source: max400}
+actions <=6 rows {text: max240, owner: max80, date: max80}; free-text dates
+Use empty arrays for inactive layouts. Only active-layout content appears, but all arrays remain in JSON.
+
+Evidence is an attributable observation, not a certainty claim. Assumptions are inferences; proposals are recommendations and targets. For metrics, keep unit and value together, identify baseline/window/sample/source visibly, and distinguish percentage-point from relative-percent changes. Never invent unknown baselines, denominators, significance, ROI, or successful outcomes. Mark unmeasured metrics as Not measured rather than zero. Source strings are plain citations; URLs are not fetched.
+
+HTML/print excludes notes; JSON includes them and inactive-layout content. Keep decision-changing caveats on the slide. Quality checks flag sources, empty content, absent next steps, missing owners/dates, and heuristic density (>65 words opening, >135 elsewhere, headline >95 characters). These editorial checks are heuristics. The studio separately measures footer/canvas overflow for the selected preview after edits and resizing; it does not certify unselected slides or printed output. Inspect every intended rendered and printed view before sharing.
+
+Authoring targets, not schema limits or fit guarantees: aim for an opening headline under 60 characters and supporting thought under 140. Prefer 2–3 metrics per slide; when using 4, aim for a value under 18 characters, a label under 70, and a source under 120. Split dense measurement ledgers rather than hide sample sizes, baselines, or caveats. Prefer <=3 concise closing actions; keep gates and ownership visible.

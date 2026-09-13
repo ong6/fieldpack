@@ -1,0 +1,20 @@
+FIELDDECK JSON v1 — portable format reference
+
+Return a JSON object, not markup or executable code. Copy assets/template.json and replace placeholder content. Import via Fielddeck's Import button after exporting a backup. This skill works independently of the app; no network or runtime is required to author JSON.
+
+Deck keys only: version=1; id (1–80 ASCII letters/digits/_/-); title (nonblank, max 140); subtitle (max 360); audience (max 160); theme (navy|cream|coral); slides (1–30). Total JSON is at most 1 MiB UTF-8.
+Slide keys only: id (same rule, unique), layout (title|findings|architecture|comparison|results|next-steps), eyebrow (80), title (140), subtitle (360), label (evidence|assumption|proposal), source (400), notes (8000), points, nodes, columns, metrics, actions. Parenthetical numbers are maximum string lengths. Plain text only; source URLs are not fetched. Version, deck title, IDs, layout, and slides are required; other strings/arrays default empty, claim label defaults assumption, theme defaults navy. No nulls, unknown keys, or prototype properties.
+
+Arrays and row keys:
+points (up to 6): {text:400, labelType:evidence|assumption|proposal, source:400}
+nodes (up to 5): {name:80, detail:240}
+columns (up to 3): {heading:80, body:700}
+metrics (up to 4): {value:40, label:120, source:400}
+actions (up to 6): {text:240, owner:80, date:80}
+Numbers above mean maximum text length, not numeric field types. Every field value is a string except arrays and version. Only the active layout's array is displayed. Other content is retained in JSON. Architecture renders a linear left-to-right chain with automatic arrows. Branches, cycles, edge labels, arbitrary node positions, and Mermaid are not supported; use extra slides and notes instead of inventing schema fields.
+
+Use evidence only for attributable observed facts, assumption for inferred topology/behavior, and proposal for future design. Do not invent latency, cost, security guarantees, or compliance claims. Describe identity enforcement, trust boundaries, data movement, failures, fallback, and operational ownership. Put approval and validation actions in next-steps with owner and target date (free text).
+
+JSON includes notes; HTML and print intentionally exclude them. Keep critical caveats visible. Editorial QA uses approximate density (>65 words on opening, >135 elsewhere, headline >95 characters), source, empty content, and next-step checks. Separately, the studio measures footer/canvas overflow for the selected preview after edits and resizing, not every slide or print output. Validate schema then inspect every rendered slide and print preview.
+
+Authoring targets, not schema limits or fit guarantees: use an opening headline under 60 characters and supporting thought under 140. Prefer 3–4 architecture stages; aim for names under 35 characters and details under 180. With 5 stages, keep details under 120 or split the flow. Compare 2 options where possible, with <=55 words per option; for 3 options target <=35 words each. Preserve trust boundaries and decision-changing caveats on-slide, moving only supporting detail to notes.

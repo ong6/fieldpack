@@ -1,0 +1,4 @@
+interface:
+  display_name: "FDE Discovery Narrative"
+  short_description: "Turn discovery evidence into a decision-ready story"
+  default_prompt: "Use $fde-discovery-narrative to turn these discovery notes into a sourced Fielddeck narrative."

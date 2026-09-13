@@ -1,0 +1,4 @@
+interface:
+  display_name: "FDE Technical Architecture"
+  short_description: "Explain system boundaries, flows, and trade-offs"
+  default_prompt: "Use $fde-technical-architecture to build a Fielddeck architecture story from these system constraints."

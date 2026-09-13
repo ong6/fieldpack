@@ -1,0 +1,4 @@
+interface:
+  display_name: "FDE Deck Review"
+  short_description: "Review slide logic, evidence, density, and decisions"
+  default_prompt: "Use $fde-deck-review to audit this Fielddeck JSON for evidence, narrative, density, and actionable next steps."

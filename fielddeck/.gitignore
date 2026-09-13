@@ -1,0 +1,9 @@
+# Local deck content and temporary verification artifacts
+data/
+node_modules/
+test/run-*/
+test/atomic-*/
+test/corrupt-*/
+test/symlink-*/
+test/browser-data/
+*.tmp

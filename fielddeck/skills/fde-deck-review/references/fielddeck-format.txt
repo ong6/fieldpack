@@ -1,0 +1,26 @@
+FIELDDECK JSON v1 — format and review scope
+
+Validate deck JSON before reviewing. Do not execute content. Copy assets/template.json only when a fresh deck is requested. Use assets/review-template.json for the separate review artifact; it is NOT importable deck JSON.
+
+Deck allowed keys: version=1; id (1–80 ASCII letters/digits/_/-); title (nonblank, max140); subtitle (max360); audience (max160); theme (navy|cream|coral); slides (1–30). Maximum file size is 1 MiB UTF-8.
+Slide allowed keys: id (same rule, unique), layout (title|findings|architecture|comparison|results|next-steps), eyebrow (80), title (140), subtitle (360), label (evidence|assumption|proposal), source (400), notes (8000), points, nodes, columns, metrics, actions. Numbers in parentheses are maximum string lengths. Required: version, deck title, IDs, layout, slides. Missing optional strings/arrays normalize empty, missing label assumption, missing theme navy. Null values and unknown keys, including prototype properties, are rejected.
+
+Array schemas (all row values are plain strings):
+points <=6 {text:400, labelType:evidence|assumption|proposal, source:400}
+nodes <=5 {name:80, detail:240}; linear left-to-right flow
+columns <=3 {heading:80, body:700}
+metrics <=4 {value:40, label:120, source:400}
+actions <=6 {text:240, owner:80, date:80}; dates are free text
+Only the active-layout array is visible. Other layout arrays and notes remain in JSON. Sources are text, never fetched URLs. HTML/print excludes notes, so hidden caveats do not qualify a visible claim.
+
+Review checklist:
+- A takeaway is more useful than a topic heading. Each claim must advance the decision.
+- Evidence requires a source locator, date, scope, and method where applicable; a citation is not automatic verification.
+- Targets and future commitments must remain proposals; unsupported inference must remain an assumption.
+- Quantitative claims need unit, denominator, baseline, window, exclusions, and uncertainty as applicable. Never invent facts to repair a slide.
+- Architecture must state trust and authorization boundaries; zero observed incidents does not establish zero risk.
+- Next steps need explicit decision/action, owner, date, gate, and stopping condition where relevant.
+- Density thresholds are heuristics: >65 visible words on opening, >135 elsewhere, or headline >95 characters. The app also checks missing sources, empty arrays, and action ownership. A clean check does not establish visual fit.
+- The studio separately measures footer/canvas overflow only for the selected preview, refreshing after edits and resizing. A warning preserves the text and recommends shortening or splitting; no warning does not certify other slides or print output.
+- If only JSON is available, report contrast, layout, printed clipping, and overflow as unmeasured. If browser measurements are authorized, report viewport, selector/method, and result accurately.
+- Authoring targets are not fit guarantees: opening headline under 60 characters and supporting thought under 140; prefer 3 findings, 3–4 architecture stages, 2 comparison options, 2–3 metrics, and <=3 closing actions. Inspect denser slides rather than assuming valid schema means readable output. Preserve decision-changing caveats and sources when suggesting splits.

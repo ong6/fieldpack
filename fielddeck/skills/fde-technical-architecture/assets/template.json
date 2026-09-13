@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "id": "architecture-starter",
+  "title": "Architecture: boundaries before integrations",
+  "subtitle": "A proposed design, not an implementation claim",
+  "audience": "Platform, security, and delivery owners",
+  "theme": "navy",
+  "slides": [
+    { "id": "decision", "layout": "title", "eyebrow": "ARCHITECTURE / PROPOSAL", "title": "Define the decision the design must support", "subtitle": "Name the workload, trust model, and non-goals.", "label": "proposal", "source": "Template only — replace with supplied constraints" },
+    { "id": "constraints", "layout": "findings", "eyebrow": "01 / CONSTRAINTS", "title": "Make unverified constraints explicit", "label": "assumption", "points": [ { "text": "Identify data classification, identity, and authorization requirements.", "labelType": "assumption", "source": "TBD — security owner or source" }, { "text": "Identify latency, capacity, availability, and cost needs without inventing guarantees.", "labelType": "assumption", "source": "TBD — workload evidence" } ] },
+    { "id": "flow", "layout": "architecture", "eyebrow": "02 / REQUEST FLOW", "title": "Assign a responsibility to every boundary", "label": "proposal", "source": "Proposed linear flow — validate against actual system contracts", "nodes": [ { "name": "Caller", "detail": "Authenticate identity; define caller trust" }, { "name": "Access boundary", "detail": "Authorize tenant and role before data retrieval" }, { "name": "Processing", "detail": "Scope data; define timeout and fallback" }, { "name": "Response and audit", "detail": "Expose provenance; minimize retained data" } ], "notes": "Specify retention/deletion, retry and idempotency, monitoring, and rollback. Use separate slides for branches rather than inventing graph fields." },
+    { "id": "options", "layout": "comparison", "eyebrow": "03 / TRADE-OFFS", "title": "Compare options against the same constraints", "label": "proposal", "columns": [ { "heading": "Current approach", "body": "State operating ownership, security boundaries, failure recovery, and constraints from evidence." }, { "heading": "Proposed change", "body": "State benefits as hypotheses, integration obligations, failure modes, reversibility, and validation gaps." } ] },
+    { "id": "validation", "layout": "next-steps", "eyebrow": "04 / VALIDATION", "title": "Approve a testable design, not an implied guarantee", "label": "proposal", "actions": [ { "text": "Review identity, tenant boundary, retention, and failure cases", "owner": "TBD — security lead", "date": "TBD — agree date" }, { "text": "Validate contracts and workload assumptions before implementation", "owner": "TBD — platform lead", "date": "TBD — agree date" } ] }
+  ]
+}

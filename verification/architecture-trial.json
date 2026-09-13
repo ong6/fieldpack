@@ -1,0 +1,232 @@
+{
+  "version": 1,
+  "id": "support-assistant-design-review",
+  "title": "Customer support assistant: permission boundaries first",
+  "subtitle": "Technical design review | Known facts, proposed controls, and unresolved approvals",
+  "audience": "Architecture reviewers and security, platform, and support stakeholders",
+  "theme": "navy",
+  "slides": [
+    {
+      "id": "decision",
+      "layout": "title",
+      "eyebrow": "TECHNICAL DESIGN REVIEW / PROPOSAL",
+      "title": "Review the design; do not authorize production yet",
+      "subtitle": "Proposed: validate permission-bound retrieval first. Gate model integration on data-handling decisions. No vendor, residency, compliance, or performance assurance is implied.",
+      "label": "proposal",
+      "source": "provided architecture brief; recommendation proposed for review",
+      "notes": "Decision requested: approve scoped design validation, not production deployment or customer-data transmission to a model. The supplied brief is undated; no source date is inferred. Current-state facts are attributed to 'provided architecture brief'. The request flow and two fallback rules were supplied as proposals, not existing capabilities. Other controls and alternatives in this deck are review proposals, not validated implementations. No provider or deployment region is selected. Assigned owners and target dates require confirmation. Non-goal proposed for this review: autonomous repository changes or support actions; the supplied flow describes retrieval and responses only, not write authority."
+    },
+    {
+      "id": "facts-and-gaps",
+      "layout": "findings",
+      "eyebrow": "01 / KNOWN VERSUS UNAPPROVED",
+      "title": "A repository and SSO are known; operating contracts are not",
+      "label": "evidence",
+      "source": "provided architecture brief",
+      "points": [
+        {
+          "text": "Known: current support documents live in a customer-controlled repository.",
+          "labelType": "evidence",
+          "source": "provided architecture brief"
+        },
+        {
+          "text": "Known: authentication is SSO; repository authorization behavior is not specified.",
+          "labelType": "evidence",
+          "source": "provided architecture brief"
+        },
+        {
+          "text": "Not approved: model provider, deployment region, retention contract, load target, or data classification.",
+          "labelType": "evidence",
+          "source": "provided architecture brief"
+        },
+        {
+          "text": "Proposed: permission-enforcing retrieval, model generation, cited response, and audit event; not confirmed integrations.",
+          "labelType": "proposal",
+          "source": "provided architecture brief"
+        },
+        {
+          "text": "Proposed gate: confirm identity-to-repository permission mapping before testing retrieval access.",
+          "labelType": "proposal",
+          "source": "Design review proposal based on provided architecture brief"
+        }
+      ],
+      "notes": "SSO establishes authentication, not proof that the operator can read any particular document. Token validation, identity mapping, permission freshness, service identities, tenant organization, repository API behavior, indexing, and caching were not supplied. Their absence here is a design gap, not evidence of a broken current system. Existing support workflow, model use, operational ownership, costs, and performance are unprovided. All current-state claims use the undated provided architecture brief as their source."
+    },
+    {
+      "id": "request-flow",
+      "layout": "architecture",
+      "eyebrow": "02 / PROPOSED REQUEST FLOW",
+      "title": "Authorize before content reaches generation",
+      "subtitle": "Logical flow only. Model destination and egress remain unapproved; response delivery and audit emission are separate outcomes, not a serial dependency.",
+      "label": "proposal",
+      "source": "provided architecture brief; boundary details proposed for review",
+      "nodes": [
+        {
+          "name": "Authenticated operator",
+          "detail": "Submit query with SSO identity. Proposed entry boundary: gateway validates identity and binds the request to repository access scope."
+        },
+        {
+          "name": "Retrieval gateway",
+          "detail": "Customer repository boundary: enforce operator permissions before fetching or releasing content. Send only authorized snippets and source locators onward."
+        },
+        {
+          "name": "Model generation",
+          "detail": "Processing / possible egress boundary: receive query and authorized snippets only. No repository credentials or independent access. Provider and region unapproved."
+        },
+        {
+          "name": "Cited response + audit event",
+          "detail": "Proposed output boundary: validate citations and recipient scope before delivery. Separately emit minimized audit metadata; sink, retention, and access require approval."
+        }
+      ],
+      "notes": "Representative request, all proposed except the supplied repository and SSO facts: (1) gateway validates the operator's SSO identity and resolves the identity used for repository authorization; (2) gateway checks authoritative repository permissions and retrieves authorized content; (3) gateway transmits the operator query, selected snippets, and authorized source locators to the generation component only after the data-handling gate is approved; (4) gateway validates output grounding and recipient scope, returns a cited answer to the authenticated operator, and emits an audit event to a separately authorized sink. The repository is a resource accessed by the gateway, not a second independent path into the model. Repository-native enforcement versus gateway adapters must be confirmed. Model output is untrusted and does not confer access rights. The last node groups two logical outcomes; arrows do not mean response content must traverse the audit sink. The failure slide covers branches this linear renderer cannot express. Query text, repository snippets, citation locators, outputs, and audit metadata may all carry sensitive data; classification is unknown. No actual infrastructure boundary, network integration, or deployment topology has been verified."
+    },
+    {
+      "id": "trust-boundaries",
+      "layout": "findings",
+      "eyebrow": "03 / PROPOSED CONTROLS AND OPEN CONTRACTS",
+      "title": "Permissions and retrieved text are separate trust problems",
+      "label": "proposal",
+      "source": "Design review proposals based on provided architecture brief",
+      "points": [
+        {
+          "text": "Stale permissions: gateway rechecks access before release; uncertain freshness denies disclosure, including cached content.",
+          "labelType": "proposal",
+          "source": "Proposed mitigation; freshness contract requires confirmation"
+        },
+        {
+          "text": "Embedded instructions: treat retrieved text as untrusted data, never authority to change permissions or invoke tools.",
+          "labelType": "proposal",
+          "source": "Proposed prompt-injection containment; requires adversarial validation"
+        },
+        {
+          "text": "Egress: gate queries, snippets, and outputs on classification, provider, region, and retention approval; no residency claim.",
+          "labelType": "proposal",
+          "source": "Proposed approval gate; unapproved items from provided architecture brief"
+        },
+        {
+          "text": "Isolation: gateway scopes requests, caches, and citations to operator/repository permissions; tenant model requires confirmation.",
+          "labelType": "proposal",
+          "source": "Proposed isolation control; tenant topology not supplied"
+        },
+        {
+          "text": "Retention/deletion: approve rules for snippets, caches, prompts, responses, and audit records before persistence or model integration.",
+          "labelType": "proposal",
+          "source": "Proposed data-lifecycle contract; retention contract unapproved in provided architecture brief"
+        },
+        {
+          "text": "Audit: restrict sink access and minimize metadata; payload logging, deletion, and operator visibility need approval.",
+          "labelType": "proposal",
+          "source": "Proposed audit boundary; contract and owner require confirmation"
+        }
+      ],
+      "notes": "Permission freshness is not solved by SSO or a single cached allow result. Proposed validation must cover revocation during retrieval/generation, group changes, source deletion, and any future index or cache. Define an authoritative lookup, release-time check, invalidation mechanism, and acceptable freshness semantics; no TTL or consistency guarantee is asserted. If the repository cannot provide sufficient access enforcement, treat this as a blocking gap rather than relying on prompts. Proposed injection containment: separate instructions from source content, expose no repository credentials or action tools to generation, constrain citations to the authorized retrieval set, and abstain when grounding fails. Prompt wording alone is not a security boundary and these mitigations are not claimed to eliminate injection. Confirm whether customer or tenant partitions exist; do not infer multi-tenancy. Proposed audit fields are a request identifier, appropriately minimized actor reference, permission decision, permitted source references, generation/fallback outcome, and timing metadata. Even these fields may be sensitive. Retention/deletion terms must cover every enabled processing component, cache/index, log sink, and backup, including any future model provider's handling. No zero-retention, compliance, deletion completion, or regional processing guarantee is claimed."
+    },
+    {
+      "id": "failure-behavior",
+      "layout": "findings",
+      "eyebrow": "04 / PROPOSED FAILURE BRANCHES",
+      "title": "Deny uncertain access; degrade generation without inventing answers",
+      "label": "proposal",
+      "source": "provided architecture brief; additional failure policies proposed for review",
+      "points": [
+        {
+          "text": "Permissions lookup fails: deny retrieval; do not reuse cached snippets or call the model with repository content.",
+          "labelType": "proposal",
+          "source": "provided architecture brief; cache and generation restrictions proposed"
+        },
+        {
+          "text": "Model call fails: show retrieved authorized snippets, clearly labeled; no fabricated answer. Recheck release permissions.",
+          "labelType": "proposal",
+          "source": "provided architecture brief; release-time recheck proposed"
+        },
+        {
+          "text": "No authorized evidence or unsupported citations: abstain; do not imply an evidence-backed answer.",
+          "labelType": "proposal",
+          "source": "Proposed abstention policy"
+        },
+        {
+          "text": "Timeouts/retries: bounded budgets unconfirmed; retry transient model errors only within budget and reauthorize disclosure.",
+          "labelType": "proposal",
+          "source": "Proposed retry policy; numeric targets require confirmation"
+        },
+        {
+          "text": "Audit unavailable: proposed gate blocks content release without audit acceptance; approval and delivery semantics remain open.",
+          "labelType": "proposal",
+          "source": "Proposed audit-outage behavior; requires explicit approval"
+        },
+        {
+          "text": "Rollback: disable generation, retain permission checks, and return authorized snippets; access uncertainty still denies.",
+          "labelType": "proposal",
+          "source": "Proposed reversible operating mode"
+        }
+      ],
+      "notes": "The lookup-denial and model-failure snippet fallback are proposals supplied in the brief, not tested features. Proposed denial response is a generic access-unavailable message with no protected titles, snippets, or citations. A model failure must not bypass authorization: if release-time permissions cannot be established, deny content instead of showing the retrieved snippets. Distinguish an empty permitted result from an upstream error without disclosing the existence of inaccessible documents. Timeout values, maximum attempts, backoff, concurrency, and user-visible latency targets remain unconfirmed. Proposed policy: permission uncertainty is terminal for the current attempt; a later attempt repeats authorization from the start. Bound model retries, cancel work when the request expires, and avoid duplicate user-visible responses. Use a stable request identifier and per-attempt identifiers for audit deduplication; specify acceptance/acknowledgment and retry semantics without promising exactly-once delivery. The proposed audit gate trades availability for traceability and requires approval. Response delivery and audit persistence can fail independently; define attempt versus delivery-outcome events and avoid claiming atomicity. Proposed observability covers authorization denial/unavailability, stale-access rejection, injection/citation rejection, model timeout/fallback, and audit failure without raw prompt/snippet logging by default. Test rollback to snippets-only and then assistant disablement if authorization cannot be trusted. Owners, alert thresholds, escalation paths, and runbook dates require confirmation."
+    },
+    {
+      "id": "alternatives",
+      "layout": "comparison",
+      "eyebrow": "05 / CONDITIONAL TRADEOFFS",
+      "title": "Validate retrieval first; generation adds a separate approval burden",
+      "subtitle": "Proposed sequence, not a universal ranking. Compare the same criteria; benefits and costs remain unmeasured.",
+      "label": "proposal",
+      "source": "provided architecture brief for repository baseline; alternatives and comparisons proposed",
+      "columns": [
+        {
+          "heading": "Current repository baseline",
+          "body": "Security: access controls unverified. Ownership: repository customer-controlled; operations unknown. Failure: unprovided. Reversibility: baseline only. Effort: unknown. Cost: unknown. No existing assistant workflow is evidenced."
+        },
+        {
+          "heading": "Proposed authorized snippets",
+          "body": "Security: gateway ACL enforcement; no model path. Ownership: gateway/support roles unassigned. Failure: deny uncertain access. Reversibility: disable gateway. Effort: permission integration. Cost: retrieval/operations, unestimated."
+        },
+        {
+          "heading": "Proposed cited generation",
+          "body": "Security: ACLs plus injection/egress controls. Ownership: adds model/audit responsibilities, unassigned. Failure: authorized snippets. Reversibility: disable generation. Effort: additional validation. Cost: retrieval/generation/operations, unestimated."
+        }
+      ],
+      "notes": "The current-state evidence establishes document location and SSO only. It does not establish a manual support process, existing assistant, working repository ACL integration, or baseline service levels. Alternatives are proposed design choices, not additional facts. Apply the same security, operational ownership, failure handling, reversibility, effort, and cost criteria to each option. Snippets-only would still require gateway authorization, recipient checks, data-lifecycle rules, observability, and the agreed audit policy; removing generation does not remove these obligations. It avoids the proposed model-processing path but does not prove all other data movement stays within a region. Hypothesis: snippets-only is a narrower surface for validating permissions, while generation could improve synthesis but adds unmeasured processing cost, injection exposure, and data-handling contracts. Conditional recommendation: validate retrieval first if authoritative permission enforcement is feasible, then evaluate generated answers only after the missing approvals and evidence gates are satisfied. If enforcement is inadequate, do not expose repository content through either assistant option. No vendor, pricing, capacity, latency, or operational ownership commitment is inferred."
+    },
+    {
+      "id": "approval-and-validation",
+      "layout": "next-steps",
+      "eyebrow": "06 / APPROVAL REQUEST",
+      "title": "Approve scoped validation; keep model integration and release gated",
+      "subtitle": "Approve boundary/fallback tests with non-sensitive fixtures only. Customer-data egress and production remain gated. Owners/dates require confirmation.",
+      "label": "proposal",
+      "source": "Design review proposals; missing approvals from provided architecture brief",
+      "actions": [
+        {
+          "text": "Confirm SSO-to-repository identity mapping; test revocation, stale caches, isolation, and permission-lookup denial.",
+          "owner": "Proposed: identity/repository reviewers",
+          "date": "Unconfirmed"
+        },
+        {
+          "text": "Approve classification, provider, region, egress, and retention/deletion contracts before model integration.",
+          "owner": "Proposed: data/security reviewers",
+          "date": "Unconfirmed"
+        },
+        {
+          "text": "Test embedded instructions, citation grounding, model failure, authorized-snippet fallback, and abstention.",
+          "owner": "Proposed: security/support reviewers",
+          "date": "Unconfirmed"
+        },
+        {
+          "text": "Confirm workload and load targets; set timeout/retry budgets and evaluate latency, quality, and cost.",
+          "owner": "Proposed: platform/support reviewers",
+          "date": "Unconfirmed"
+        },
+        {
+          "text": "Approve audit-outage behavior; test deduplication, access/deletion, observability, and generation rollback.",
+          "owner": "Proposed: operations/security reviewers",
+          "date": "Unconfirmed"
+        },
+        {
+          "text": "Record validation-only approval now; require evidence and a separate decision before model integration or release.",
+          "owner": "Proposed: architecture approver",
+          "date": "Unconfirmed"
+        }
+      ],
+      "notes": "Acceptance evidence proposed for review: inaccessible or revoked documents never appear in snippets, prompts, citations, or responses; permission lookup errors disclose no repository content; embedded source instructions cannot alter access scope or grant tools; generation errors produce clearly labeled permitted snippets or denial if authorization cannot be renewed; unsupported citations lead to abstention; audit faults follow an explicitly approved policy; repeated attempts correlate without duplicate user-visible delivery; generation can be disabled without disabling permission checks. Validate source deletion and permission changes across any enabled caches/indexes and data-lifecycle systems. These are proposed criteria, not passed tests or security guarantees. Use non-sensitive synthetic fixtures until customer-data use is explicitly approved. Confirm a representative load profile before setting numeric targets or measuring performance/cost. Required decisions include whether proposed audit gating is acceptable and whether authoritative permission freshness can be enforced. The review remains blocked for model integration and production release until the missing approvals and validation evidence are resolved. Owners are suggested review roles only, not assignments; all dates require confirmation. This deck does not report successful integration tests, measured slide overflow, compliance certification, or data residency."
+    }
+  ]
+}

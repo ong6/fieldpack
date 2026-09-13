@@ -1,0 +1,4 @@
+interface:
+  display_name: "FDE Pilot Readout"
+  short_description: "Separate pilot evidence from targets and uncertainty"
+  default_prompt: "Use $fde-pilot-readout to summarize these pilot results and recommend a gated next step in Fielddeck."

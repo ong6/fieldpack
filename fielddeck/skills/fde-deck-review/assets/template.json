@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "id": "review-ready-deck-starter",
+  "title": "A review-ready decision story",
+  "subtitle": "Replace all placeholders; do not invent evidence to complete the structure",
+  "audience": "TBD — decision maker",
+  "theme": "cream",
+  "slides": [
+    { "id": "opening", "layout": "title", "eyebrow": "DECISION / WORKING DRAFT", "title": "State the decision and why it matters", "subtitle": "A template for a new deck, not a substitute for the supplied deck under review.", "label": "proposal", "source": "Template only — factual claims not supplied" },
+    { "id": "evidence", "layout": "findings", "eyebrow": "01 / EVIDENCE", "title": "Show the observation and its limitations together", "label": "assumption", "points": [ { "text": "Replace with a source-backed observation; keep uncertainty visible.", "labelType": "assumption", "source": "TBD — exact source locator, date, and scope" } ] },
+    { "id": "alternatives", "layout": "comparison", "eyebrow": "02 / OPTIONS", "title": "Compare the decision against a credible alternative", "label": "proposal", "columns": [ { "heading": "Current approach", "body": "State evidence-backed strengths, costs, and constraints." }, { "heading": "Recommended approach", "body": "State conditional benefits, risks, non-goals, and validation gaps." } ] },
+    { "id": "ask", "layout": "next-steps", "eyebrow": "03 / THE ASK", "title": "Make the next commitment explicit", "label": "proposal", "actions": [ { "text": "Agree a bounded action and its approval gate", "owner": "TBD — accountable owner", "date": "TBD — agree date" } ] }
+  ]
+}

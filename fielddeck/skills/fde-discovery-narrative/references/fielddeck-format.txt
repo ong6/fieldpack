@@ -1,0 +1,22 @@
+FIELDDECK JSON v1 — portable format reference
+
+Return a JSON object, not HTML, Markdown, or executable code. Use assets/template.json as a starting point. No external dependencies are required. Import via Fielddeck's Import button after exporting a backup.
+
+Deck fields (no unknown keys): version (exactly 1), id (1–80 ASCII letters/digits/_/-), title (nonblank, max 140), subtitle (max 360), audience (max 160), theme (navy | cream | coral), slides (1–30 objects). Imports are limited to 1 MiB UTF-8.
+
+Slide fields (no unknown keys): id (same rule, unique within deck), layout (title | findings | architecture | comparison | results | next-steps), eyebrow (max 80), title (max 140), subtitle (max 360), label (evidence | assumption | proposal), source (max 400), notes (max 8000). Strings are plain text, never markup. A source is a textual citation, not an automatically fetched URL.
+
+Content arrays may coexist; only the array matching layout is visible. Use empty arrays for unused content:
+points: at most 6 objects {text: max 400, labelType: evidence|assumption|proposal, source: max 400}
+nodes: at most 5 objects {name: max 80, detail: max 240}; rendered as a linear left-to-right flow
+columns: at most 3 objects {heading: max 80, body: max 700}; newline-separated text supported
+metrics: at most 4 objects {value: max 40, label: max 120, source: max 400}
+actions: at most 6 objects {text: max 240, owner: max 80, date: max 80}; date is free text, not a computed deadline
+
+Missing optional strings and arrays normalize to empty; missing label defaults to assumption and missing theme defaults to navy. IDs, layout, version, title, and slides are required. Unknown fields are rejected, including __proto__, constructor, and prototype payloads. Do not emit nulls for optional strings.
+
+Evidence means an observation backed by an attributable source; it does not guarantee truth. Assumption means unvalidated inference. Proposal means a recommendation or target. Sources should include locator, date, scope, method, and sample when relevant. Never invent quantitative claims.
+
+Speaker notes and inactive-layout arrays survive JSON export. Notes are excluded from HTML and print; important caveats must be visible. The studio's clarity check flags missing sources, absent next steps, empty layout content, missing action owners/dates, headlines over 95 characters, and approximate density over 65 words on title slides or 135 elsewhere. These editorial thresholds are heuristics. The studio separately measures footer/canvas overflow for the currently selected preview, refreshing after edits and resizing. This does not certify unselected slides or print output. Inspect every final slide in the intended viewport and print preview.
+
+Authoring targets, not schema limits or fit guarantees: aim for an opening headline under 60 characters and a supporting thought under 140. Prefer 3 findings with concise sources; with 4 findings, aim for <=30 words of observation plus citation per finding. Split 5–6 substantial findings across slides. Use <=3 short actions per closing slide. Keep decision-changing caveats visible; move only supporting detail to notes. Never erase evidence merely to make a slide fit.

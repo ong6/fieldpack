@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "id": "discovery-starter",
+  "title": "Discovery: a decision to validate",
+  "subtitle": "Replace every placeholder with permissioned evidence",
+  "audience": "Decision owner and workflow team",
+  "theme": "navy",
+  "slides": [
+    { "id": "framing", "layout": "title", "eyebrow": "DISCOVERY / WORKING HYPOTHESIS", "title": "Name the workflow friction worth investigating", "subtitle": "State the audience and the decision this discovery should enable.", "label": "assumption", "source": "Template only — no customer facts supplied", "notes": "Ask what would disprove the framing." },
+    { "id": "observations", "layout": "findings", "eyebrow": "01 / WHAT WE KNOW", "title": "Separate observations from interpretation", "label": "assumption", "points": [ { "text": "Replace with an observed workflow step, keeping inference separate.", "labelType": "assumption", "source": "TBD — source locator, participant role, date" }, { "text": "Record a counterexample or an unresolved disagreement.", "labelType": "assumption", "source": "TBD — source locator and scope" } ] },
+    { "id": "opportunity", "layout": "comparison", "eyebrow": "02 / THE OPPORTUNITY", "title": "Compare a bounded intervention with the current path", "label": "proposal", "columns": [ { "heading": "Current workflow", "body": "Describe known steps, constraints, and observed friction. Leave impact unquantified if no baseline exists." }, { "heading": "Smallest experiment", "body": "Describe a reversible change, explicit non-goals, and what evidence would invalidate it." } ] },
+    { "id": "validation", "layout": "findings", "eyebrow": "03 / WHAT TO TEST", "title": "Design the next step to challenge the hypothesis", "label": "proposal", "points": [ { "text": "Collect a representative baseline before proposing an improvement target.", "labelType": "proposal", "source": "Proposed measurement plan" }, { "text": "Agree success and stop gates with the accountable team.", "labelType": "proposal", "source": "Proposed approval step" } ] },
+    { "id": "decision", "layout": "next-steps", "eyebrow": "04 / THE ASK", "title": "Ask for a specific learning commitment", "label": "proposal", "actions": [ { "text": "Confirm workflow scope and evidence gaps", "owner": "TBD — decision owner", "date": "TBD — agree date" }, { "text": "Review baseline and decide whether to test", "owner": "TBD — workflow lead", "date": "TBD — agree date" } ] }
+  ]
+}
