@@ -1,6 +1,6 @@
-[submodule "fielddeck"]
-	path = fielddeck
-	url = https://github.com/ong6/fielddeck.git
+[submodule "deckforge"]
+	path = deckforge
+	url = https://github.com/ong6/deckforge.git
 [submodule "skillforge"]
 	path = skillforge
 	url = https://github.com/ong6/skillforge.git

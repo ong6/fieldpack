@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, writeFile } from 'node:fs/promises';
-import { THEMES, validateDeck, visibleText } from '../fielddeck/public/model.js';
-import { exportHTML, measureSlideOverflow } from '../fielddeck/public/render.js';
+import { THEMES, validateDeck, visibleText } from '../deckforge/public/model.js';
+import { exportHTML, measureSlideOverflow } from '../deckforge/public/render.js';
 import { launchBrowser, ARTIFACTS, ROOT } from './harness.mjs';
 
 for (const name of ['pilot-readout', 'discovery', 'architecture']) {
@@ -14,8 +14,8 @@ for (const name of ['pilot-readout', 'discovery', 'architecture']) {
     if (name === 'pilot-readout') { assert.match(visible, /120/); assert.match(visible, /240/); assert.match(visible, /not expand|do not expand/i); assert.match(visible, /review.*incomplete|incomplete.*review|review.*not completed/i); }
     if (name === 'discovery') { assert.match(visible, /\$1m.*unsupported|unsupported.*\$1m/i); assert.match(visible, /two-week/); assert.match(visible, /engineering/i); }
     if (name === 'architecture') { assert.match(visible, /unapproved|not approved/i); assert.match(visible, /deny/i); assert.match(visible, /permissions/i); }
-    const css = await readFile(ROOT + '/../fielddeck/public/slide.css', 'utf8');
-    const script = await readFile(ROOT + '/../fielddeck/public/presentation.js', 'utf8');
+    const css = await readFile(ROOT + '/../deckforge/public/slide.css', 'utf8');
+    const script = await readFile(ROOT + '/../deckforge/public/presentation.js', 'utf8');
     const html = exportHTML(deck, css, script);
     const htmlPath = ARTIFACTS + '/' + name + '-trial.html';
     await writeFile(htmlPath, html);

@@ -29,8 +29,8 @@ async function saved(page) {
   await page.waitForFunction(() => document.querySelector('#save-state').textContent === 'Saved locally');
 }
 
-test('Fielddeck: edit, persist, reorder, import, export, present, print and responsive accessibility', { timeout: 120000 }, async () => {
-  const app = await startApp('fielddeck');
+test('Deckforge: edit, persist, reorder, import, export, present, print and responsive accessibility', { timeout: 120000 }, async () => {
+  const app = await startApp('deckforge');
   const browser = await launchBrowser();
   const errors = [];
   try {
@@ -40,8 +40,8 @@ test('Fielddeck: edit, persist, reorder, import, export, present, print and resp
     await page.goto(app.url);
     await page.locator('#slide-list > li').first().waitFor();
     assert.equal(await page.locator('#slide-list > li').count(), 6);
-    await audit(page, 'fielddeck-desktop');
-    await page.screenshot({ path: path.join(ARTIFACTS, 'fielddeck-desktop.png'), fullPage: true });
+    await audit(page, 'deckforge-desktop');
+    await page.screenshot({ path: path.join(ARTIFACTS, 'deckforge-desktop.png'), fullPage: true });
     const overflowWarning = page.locator('#qa-list').getByRole('button', { name: /measured preview overflow/ });
     assert.equal(await overflowWarning.count(), 0);
     const overfullTitle = Array(14).fill('Overflow').join('\n');
@@ -49,7 +49,7 @@ test('Fielddeck: edit, persist, reorder, import, export, present, print and resp
     await overflowWarning.waitFor();
     await saved(page);
     assert.equal((await (await fetch(app.url + '/api/deck')).json()).deck.slides[0].title, overfullTitle);
-    await page.screenshot({ path: path.join(ARTIFACTS, 'fielddeck-overflow-warning.png'), fullPage: true });
+    await page.screenshot({ path: path.join(ARTIFACTS, 'deckforge-overflow-warning.png'), fullPage: true });
     await page.locator('[data-slide="1"]').click();
     assert.equal(await overflowWarning.count(), 0);
     await page.locator('[data-slide="0"]').click();
@@ -77,18 +77,18 @@ test('Fielddeck: edit, persist, reorder, import, export, present, print and resp
     await page.locator('#edit-title').fill('Boundaries before integrations');
     assert.equal(await page.locator('#edit-layout').inputValue(), 'architecture');
     await saved(page);
-    const jsonPath = await download(page, () => page.locator('#export-json-button').click(), 'fielddeck-backup.json');
+    const jsonPath = await download(page, () => page.locator('#export-json-button').click(), 'deckforge-backup.json');
     const deck = JSON.parse(await readFile(jsonPath, 'utf8'));
     assert.equal(deck.slides.length, 7);
     assert.equal(deck.slides[0].notes, 'PRIVATE_NOTE_DO_NOT_EXPORT');
-    const htmlPath = await download(page, () => page.locator('#export-html-button').click(), 'fielddeck-presentation.html');
+    const htmlPath = await download(page, () => page.locator('#export-html-button').click(), 'deckforge-presentation.html');
     const html = await readFile(htmlPath, 'utf8');
     assert.ok(!html.includes('PRIVATE_NOTE_DO_NOT_EXPORT'));
     assert.ok(html.includes('Evidence before expansion'));
     const exportPage = await browser.newPage();
     await exportPage.goto('file://' + htmlPath);
-    await exportPage.pdf({ path: path.join(ARTIFACTS, 'fielddeck-presentation.pdf'), printBackground: true, preferCSSPageSize: true });
-    const pdf = await readFile(path.join(ARTIFACTS, 'fielddeck-presentation.pdf'));
+    await exportPage.pdf({ path: path.join(ARTIFACTS, 'deckforge-presentation.pdf'), printBackground: true, preferCSSPageSize: true });
+    const pdf = await readFile(path.join(ARTIFACTS, 'deckforge-presentation.pdf'));
     assert.equal(pdf.subarray(0, 5).toString(), '%PDF-');
     await page.locator('#present-button').click();
     assert.equal(await page.locator('#present-dialog').isVisible(), true);
@@ -110,16 +110,16 @@ test('Fielddeck: edit, persist, reorder, import, export, present, print and resp
     await page.getByRole('button', { name: 'Apply settings' }).click();
     await saved(page);
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.screenshot({ path: path.join(ARTIFACTS, 'fielddeck-mobile.png'), fullPage: true });
+    await page.screenshot({ path: path.join(ARTIFACTS, 'deckforge-mobile.png'), fullPage: true });
     const dimensions = await noHorizontalOverflow(page);
     assert.ok(dimensions.content <= dimensions.width, JSON.stringify(dimensions));
-    await audit(page, 'fielddeck-mobile');
+    await audit(page, 'deckforge-mobile');
     assert.deepEqual(errors, []);
   } finally { await browser.close(); await app.close(); }
 });
 
-test('Fielddeck: independent library, recovery, complete brief handoff and whole-deck preflight', { timeout: 120000 }, async () => {
-  const app = await startApp('fielddeck'), browser = await launchBrowser(), errors = [];
+test('Deckforge: independent library, recovery, complete brief handoff and whole-deck preflight', { timeout: 120000 }, async () => {
+  const app = await startApp('deckforge'), browser = await launchBrowser(), errors = [];
   try {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
     const page = await context.newPage();
@@ -134,7 +134,7 @@ test('Fielddeck: independent library, recovery, complete brief handoff and whole
     await page.locator('#checkpoint-name').fill('Before the decision');
     await page.locator('#create-checkpoint-button').click();
     await page.locator('[data-preview-checkpoint]').waitFor();
-    await audit(page, 'fielddeck-checkpoints');
+    await audit(page, 'deckforge-checkpoints');
     await page.getByRole('button', { name: 'Close checkpoints', exact: true }).click();
     await page.locator('#edit-title').fill('Changed after checkpoint');
     await page.locator('#undo-button').click();
@@ -145,7 +145,7 @@ test('Fielddeck: independent library, recovery, complete brief handoff and whole
     await page.locator('[data-preview-checkpoint]').click();
     await page.locator('#checkpoint-preview-dialog').waitFor();
     assert.equal(await page.locator('#checkpoint-preview-slides .slide').count(), original.deck.slides.length);
-    await audit(page, 'fielddeck-checkpoint-preview');
+    await audit(page, 'deckforge-checkpoint-preview');
     await page.locator('#restore-checkpoint-button').click();
     await page.locator('#confirm-cancel').click();
     await page.locator('#restore-checkpoint-button').click();
@@ -162,7 +162,7 @@ test('Fielddeck: independent library, recovery, complete brief handoff and whole
     await page.locator('#starter-decision').fill('Hold expansion until the support gate passes');
     await page.locator('#starter-constraints').fill('No external uploads');
     await page.locator('#starter-gaps').fill('Recovery rehearsal not yet observed');
-    await audit(page, 'fielddeck-starter');
+    await audit(page, 'deckforge-starter');
     await page.getByRole('button', { name: 'Create independent deck', exact: true }).click();
     await page.locator('#starter-dialog').waitFor({ state: 'hidden' });
     const starterId = await page.locator('#deck-switcher').inputValue();
@@ -170,11 +170,11 @@ test('Fielddeck: independent library, recovery, complete brief handoff and whole
     assert.equal((await (await fetch(app.url + '/api/decks/' + originalId)).json()).deck.slides[0].title, 'Changed after checkpoint');
     await page.locator('#brief-button').click();
     assert.equal(await page.locator('#brief-decision').inputValue(), 'Hold expansion until the support gate passes');
-    await audit(page, 'fielddeck-agent-brief');
-    const zipPath = await download(page, () => page.locator('#export-skill-button').click(), 'fielddeck-complete-brief.zip');
+    await audit(page, 'deckforge-agent-brief');
+    const zipPath = await download(page, () => page.locator('#export-skill-button').click(), 'deckforge-complete-brief.zip');
     const entries = storedZipEntries(await readFile(zipPath));
-    for (const file of ['SKILL.md', 'agents/openai.yaml', 'assets/template.json', 'assets/eval-prompts.json', 'references/fielddeck-format.txt']) {
-      const actual = await readFile(new URL('../fielddeck/skills/fde-pilot-readout/' + file, import.meta.url));
+    for (const file of ['SKILL.md', 'agents/openai.yaml', 'assets/template.json', 'assets/eval-prompts.json', 'references/deckforge-format.txt']) {
+      const actual = await readFile(new URL('../deckforge/skills/fde-pilot-readout/' + file, import.meta.url));
       assert.deepEqual(entries.get('skills/fde-pilot-readout/' + file), actual);
     }
     assert.equal(JSON.parse(entries.get('agent-brief.json')).audience, 'Customer steering group');
@@ -192,7 +192,7 @@ test('Fielddeck: independent library, recovery, complete brief handoff and whole
     await page.locator(`[data-archive-deck="${copyId}"]`).click();
     await page.locator('#confirm-accept').click();
     await page.waitForFunction(() => !document.querySelector('#archive-state').hidden);
-    await audit(page, 'fielddeck-library');
+    await audit(page, 'deckforge-library');
     await page.getByRole('button', { name: 'Close library', exact: true }).click();
     assert.equal(await page.locator('#edit-title').isDisabled(), true);
     await page.locator('#deck-switcher').selectOption(originalId);
@@ -203,7 +203,7 @@ test('Fielddeck: independent library, recovery, complete brief handoff and whole
     await page.locator('[data-slide="0"]').click();
     await page.locator('#review-all-button').click();
     await page.locator('#preflight-status[data-state="current"]').waitFor();
-    const reportPath = await download(page, () => page.locator('#export-review-button').click(), 'fielddeck-whole-deck-preflight.json');
+    const reportPath = await download(page, () => page.locator('#export-review-button').click(), 'deckforge-whole-deck-preflight.json');
     const report = JSON.parse(await readFile(reportPath, 'utf8'));
     assert.equal(report.slides.length, original.deck.slides.length);
     assert.equal(report.stale, false);
@@ -227,7 +227,7 @@ test('Fielddeck: independent library, recovery, complete brief handoff and whole
     await page.setViewportSize({ width: 390, height: 844 });
     const dimensions = await noHorizontalOverflow(page);
     assert.ok(dimensions.content <= dimensions.width, JSON.stringify(dimensions));
-    await audit(page, 'fielddeck-library-mobile');
+    await audit(page, 'deckforge-library-mobile');
     assert.deepEqual(errors, []);
   } finally { await browser.close(); await app.close(); }
 });

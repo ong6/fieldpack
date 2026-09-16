@@ -6,14 +6,14 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { product as skillforge } from '../skillforge/agent/product.mjs';
 import { product as proofpack } from '../proofpack/agent/product.mjs';
-import { product as fielddeck } from '../fielddeck/agent/product.mjs';
+import { product as deckforge } from '../deckforge/agent/product.mjs';
 import { createApp } from '../proofpack/server.js';
 import { launchBrowser } from './harness.mjs';
 test('headless report to evidence to presentation preserves uncertainty and privacy; UI exposes proposals', async t => {
   const root = await mkdtemp(path.join(tmpdir(), 'agent-pipeline-')); t.after(() => rm(root, { recursive: true, force: true }));
   const call = product => async (name, input = {}) => (await product.execute(name, input, { workspace: path.join(root, product.name) })).data;
-  for (const p of [skillforge, proofpack, fielddeck]) { await mkdir(path.join(root, p.name)); await p.init({ workspace: path.join(root, p.name) }); }
-  const sf = call(skillforge), pp = call(proofpack), fd = call(fielddeck);
+  for (const p of [skillforge, proofpack, deckforge]) { await mkdir(path.join(root, p.name)); await p.init({ workspace: path.join(root, p.name) }); }
+  const sf = call(skillforge), pp = call(proofpack), fd = call(deckforge);
   const candidate = (await sf('skill.search', { query: 'evidence' })).items[0];
   const bundle = (await sf('evaluation.create', { expectedRevision: 0, payload: { title: 'Fictional pilot, no runs', candidateIds: [candidate.id], model: { id: 'unexecuted-fixture', capabilities: [] }, conditions: { systemPrompt: 'Use supplied evidence.', temperature: 0, tools: 'none', environment: 'test only', judge: 'not yet judged', repetitions: 1, maxOutputTokens: 100 }, cases: [{ id: 'missing', input: 'No measurements supplied.', expected: 'Identify missing measurements.' }] } })).bundle;
   const report = (await sf('evaluation.report', { id: bundle.id })).report; assert.equal(report.status, 'insufficient-evidence');
@@ -24,7 +24,7 @@ test('headless report to evidence to presentation preserves uncertainty and priv
   await writeFile(path.join(root, 'proofpack/report.json'), JSON.stringify(report));
   await pp('attachment.add', { pilotId, revision: await rev(), evidenceId: 'report', file: 'report.json', name: 'report.json' });
   await pp('review.propose', { pilotId, revision: await rev(), outcome: 'hold', rationale: 'Wait for actual measurements.', actor: 'pipeline-agent' });
-  const handoff = await pp('pilot.export', { pilotId, format: 'fielddeck' }); const deck = JSON.parse(Buffer.from(handoff.artifact.base64, 'base64'));
+  const handoff = await pp('pilot.export', { pilotId, format: 'deckforge' }); const deck = JSON.parse(Buffer.from(handoff.artifact.base64, 'base64'));
   assert.ok(!JSON.stringify(deck).includes('PRIVATE_PIPELINE_SENTINEL')); assert.ok(!JSON.stringify(deck).includes('pipeline-agent'));
   const created = await fd('deck.create', { title: 'Fictional decision readout', deck, requestId: randomUUID() });
   const html = Buffer.from((await fd('deck.export', { id: created.deck.id })).artifact.base64, 'base64').toString(); assert.ok(html.includes('insufficient evidence')); assert.ok(!html.includes('PRIVATE_PIPELINE_SENTINEL'));

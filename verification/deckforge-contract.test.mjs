@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assess, createCriterionReview, createDecisionReview, customerProject, demoProject, emptyProject, today, validateProject, ValidationError } from '../proofpack/core.js';
-import { fielddeckDeck } from '../proofpack/fielddeck.js';
+import { deckforgeDeck } from '../proofpack/deckforge.js';
 import { renderHandover } from '../proofpack/handover.js';
 // Read-only compatibility check against the consumer's actual v1 model.
-import { validateDeck, parseDeck, visibleText, MAX_BYTES, MAX_SLIDES } from '../fielddeck/public/model.js';
+import { validateDeck, parseDeck, visibleText, MAX_BYTES, MAX_SLIDES } from '../deckforge/public/model.js';
 
 const health = { 'attachment-demo': 'ok' };
 const allText = (deck) => [deck.slides.map((s) => s.title + s.subtitle).join(''), deck.slides.flatMap((s) => s.points.map((p) => p.text)).join(''), deck.slides.flatMap((s) => s.actions.map((a) => a.text)).join('')].join('\n');
@@ -24,7 +24,7 @@ function completeProject() {
 test('empty and demo decks are conservatively paginated v1 imports without invented improvements', () => {
   for (const p of [emptyProject(), demoProject().project]) {
     const original = structuredClone(p);
-    const deck = fielddeckDeck(p, health);
+    const deck = deckforgeDeck(p, health);
     assert.ok(deck.slides.length >= 5 && deck.slides.length <= MAX_SLIDES);
     assert.ok(deck.slides.every(s => s.points.length <= 3 && s.actions.length <= 3));
     assert.deepEqual(parseDeck(JSON.stringify(deck)), validateDeck(deck));
@@ -58,12 +58,12 @@ test('exports only customer projection and never discloses private IDs, counts, 
   p = reviewDecision(p, 'stop', 'internal', 'SECRET_INTERNAL_DECISION_CONDITION');
   const rawFingerprints = [p.criteria[0].reviews.at(-1).fingerprint, ...p.decisionReviews.map((d) => d.fingerprint)];
   assert.match(JSON.stringify(p.criteria[0].reviews.at(-1).snapshot), /SECRET_PRIVATE_SNAPSHOT_EVIDENCE/);
-  const deck = fielddeckDeck(p, health);
-  assert.deepEqual(deck, fielddeckDeck(customerProject(p), health), 'All fields and totals must derive from the customer view');
+  const deck = deckforgeDeck(p, health);
+  assert.deepEqual(deck, deckforgeDeck(customerProject(p), health), 'All fields and totals must derive from the customer view');
   const privateOnlyEdit = structuredClone(p);
   privateOnlyEdit.charter.internalNotes += ' changed privately';
   privateOnlyEdit.evidence[2].summary += ' changed privately';
-  assert.deepEqual(fielddeckDeck(privateOnlyEdit, health), deck, 'Private changes must not alter customer-view freshness or totals');
+  assert.deepEqual(deckforgeDeck(privateOnlyEdit, health), deck, 'Private changes must not alter customer-view freshness or totals');
   const serialized = JSON.stringify(deck);
   const requested = [];
   const store = {
@@ -81,32 +81,32 @@ test('exports only customer projection and never discloses private IDs, counts, 
   assert.match(allText(deck), /Latest shared decision: hold/);
   const withoutPrivate = customerProject(p);
   withoutPrivate.revision = p.revision + 900;
-  assert.deepEqual(fielddeckDeck(withoutPrivate, health), deck, 'No private count, revision or ID can influence deck content');
+  assert.deepEqual(deckforgeDeck(withoutPrivate, health), deck, 'No private count, revision or ID can influence deck content');
 });
 
 test('current passes become historical when evidence changes, ages, is future-dated or is unverified', () => {
   const p = completeProject();
   assert.equal(assess(customerProject(p), health).met, 1);
-  assert.match(allText(fielddeckDeck(p, health)), /Current passes: 1\/1/);
+  assert.match(allText(deckforgeDeck(p, health)), /Current passes: 1\/1/);
   for (const change of [
     (x) => { x.evidence[0].summary += ' Changed after review.'; },
     (x) => { x.evidence[0].collectedAt = '2000-01-01'; },
     (x) => { x.evidence[0].collectedAt = '2099-01-01'; }
   ]) {
     const changed = structuredClone(p); change(changed);
-    const output = allText(fielddeckDeck(changed, health));
+    const output = allText(deckforgeDeck(changed, health));
     assert.match(output, /Historical assessment: met/);
     assert.match(output, /Review freshness: changed/);
     assert.match(output, /Current passes: 0\/1/);
     assert.match(output, /Current pass: not established/);
   }
   for (const fileHealth of [{}, { 'attachment-demo': 'missing' }, { 'attachment-demo': 'corrupt' }]) {
-    const output = allText(fielddeckDeck(p, fileHealth));
+    const output = allText(deckforgeDeck(p, fileHealth));
     assert.match(output, /Current passes: 0\/1/);
     assert.match(output, /Current pass: not established/);
   }
   const stale = structuredClone(p); stale.evidence[0].collectedAt = '2000-01-01';
-  const freshlyReviewedStale = allText(fielddeckDeck(reviewCriterion(stale), health));
+  const freshlyReviewedStale = allText(deckforgeDeck(reviewCriterion(stale), health));
   assert.match(freshlyReviewedStale, /Review freshness: current/);
   assert.match(freshlyReviewedStale, /Current passes: 0\/1/);
   assert.match(freshlyReviewedStale, /stale — refresh required/);
@@ -119,7 +119,7 @@ test('all shared decisions, prior review rationale, conditions and changed fresh
   p = reviewDecision(p, 'hold', 'customer', 'FIRST_DECISION_CONDITION');
   p = reviewDecision(p, 'proceed', 'customer', 'LATEST_DECISION_CONDITION');
   p.charter.objective += ' Material change since the decision.';
-  const deck = fielddeckDeck(p, health);
+  const deck = deckforgeDeck(p, health);
   const output = allText(deck);
   for (const phrase of ['EARLIER_REVIEW_WITH_MATERIAL_CAVEAT', 'LATEST_REVIEW_RATIONALE', 'FIRST_DECISION_CONDITION', 'LATEST_DECISION_CONDITION', 'Earlier shared decision (historical): hold', 'Latest shared decision: proceed', 'Snapshot freshness: changed', 're-review required; not current approval']) assert.ok(output.includes(phrase), phrase);
   assert.ok(deck.slides.map(visibleText).join(' ').includes('LATEST_DECISION_CONDITION'), 'Decision-critical content must be visible, not relegated to notes');
@@ -142,7 +142,7 @@ test('long titles, sources, rationale, conditions, action text and owner fields 
   p = reviewCriterion(p, 'met', rationale);
   p = reviewDecision(p, 'hold', 'customer', conditions);
   validateProject(p);
-  const deck = fielddeckDeck(p, health); validateDeck(deck);
+  const deck = deckforgeDeck(p, health); validateDeck(deck);
   assert.ok(deck.slides.length > 8 && deck.slides.length <= MAX_SLIDES);
   const output = allText(deck);
   for (const value of [fullTitle, fullObjective, rationale, conditions, action]) assert.ok(output.includes(value), `Text was truncated: ${value.slice(0, 30)}`);
@@ -159,7 +159,7 @@ test('maximum schema-sized text stays intact or rejects with actionable bounded-
   p.charter.owners = '人'.repeat(4000);
   validateProject(p);
   try {
-    const deck = fielddeckDeck(p, health);
+    const deck = deckforgeDeck(p, health);
     validateDeck(deck);
     const output = allText(deck);
     for (const value of Object.values(p.charter).filter((x) => typeof x === 'string' && x.length === 4000)) assert.ok(output.includes(value));
@@ -177,12 +177,12 @@ test('large valid projects and decision histories reject rather than silently dr
     const record = p[section][0];
     p[section] = Array.from({ length: 90 }, (_, i) => ({ ...record, id: i ? `${section}-${i}` : record.id, [section === 'evidence' ? 'summary' : 'detail']: `CRITICAL_${i}_${'x'.repeat(3900)}` }));
     validateProject(p);
-    assert.throws(() => fielddeckDeck(p, health), (error) => error instanceof ValidationError && /30-slide/.test(error.message) && /Shorten.*split/.test(error.message) && /No content has been silently omitted/.test(error.message));
+    assert.throws(() => deckforgeDeck(p, health), (error) => error instanceof ValidationError && /30-slide/.test(error.message) && /Shorten.*split/.test(error.message) && /No content has been silently omitted/.test(error.message));
   }
   const p = reviewDecision(completeProject(), 'hold', 'customer', 'MATERIAL_CONDITION_'.repeat(210));
   p.decisionReviews = Array.from({ length: 100 }, (_, i) => ({ ...p.decisionReviews[0], id: `shared-review-${i}` }));
   validateProject(p);
-  assert.throws(() => fielddeckDeck(p, health), (error) => error instanceof ValidationError && /30-slide/.test(error.message));
+  assert.throws(() => deckforgeDeck(p, health), (error) => error instanceof ValidationError && /30-slide/.test(error.message));
 });
 
 test('HTML escapes review rationale and decision conditions without serializing raw snapshots', async () => {

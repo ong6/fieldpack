@@ -6,7 +6,7 @@ import { cp, mkdir, mkdtemp, readdir, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { PROJECTS, launchBrowser } from './harness.mjs';
 
-for (const [name, port] of [['fielddeck', 4311], ['skillforge', 4312], ['proofpack', 4313]]) {
+for (const [name, port] of [['deckforge', 4311], ['skillforge', 4312], ['proofpack', 4313]]) {
   test(`${name}: documented CLI starts at its local URL and serves the browser`, { timeout: 20000 }, async () => {
     const executable = name === 'skillforge' ? 'server.mjs' : 'server.js';
     const project = path.join(PROJECTS, name);

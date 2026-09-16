@@ -123,20 +123,20 @@ test('Skillforge: complete FDE pack, immutable revision, saved requirements, gui
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(app.url + '/#library');
-    await page.locator('#pack-directory').setInputFiles(PROJECTS + '/fielddeck/skills/fde-pilot-readout');
+    await page.locator('#pack-directory').setInputFiles(PROJECTS + '/deckforge/skills/fde-pilot-readout');
     await page.getByRole('button', { name: 'Import complete pack', exact: true }).click();
     await page.waitForFunction(() => document.querySelector('#pack-feedback')?.textContent.includes('Imported 1'));
     let state = await (await fetch(app.url + '/api/state')).json();
     const original = state.skills.find(s => s.title === 'fde-pilot-readout');
     assert.ok(original);
-    assert.ok(original.resources.some(r => r.path === 'references/fielddeck-format.txt'));
+    assert.ok(original.resources.some(r => r.path === 'references/deckforge-format.txt'));
     assert.ok(original.resources.some(r => r.path === 'assets/template.json'));
     for (const resource of original.resources) {
-      assert.deepEqual(Buffer.from(resource.base64, 'base64'), await readFile(PROJECTS + '/fielddeck/skills/fde-pilot-readout/' + resource.path));
+      assert.deepEqual(Buffer.from(resource.base64, 'base64'), await readFile(PROJECTS + '/deckforge/skills/fde-pilot-readout/' + resource.path));
     }
     await page.getByRole('button', { name: original.title, exact: true }).click();
     const zip = await download(page, () => page.getByRole('link', { name: /Download portable ZIP/ }).click(), 'skillforge-complete-fde-pack.zip');
-    assert.ok((await readFile(zip)).includes(Buffer.from('references/fielddeck-format.txt')));
+    assert.ok((await readFile(zip)).includes(Buffer.from('references/deckforge-format.txt')));
     await page.locator('[data-action="edit-revision"]').click();
     const changed = original.content + '\nBefore final delivery, verify every named expansion gate against the supplied evidence.\n';
     await audit('Immutable revision editor');

@@ -2,8 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import AxeBuilder from '@axe-core/playwright';
 import { readFile, writeFile } from 'node:fs/promises';
-import { validateDeck, THEMES } from '../fielddeck/public/model.js';
-import { exportHTML, measureSlideOverflow } from '../fielddeck/public/render.js';
+import { validateDeck, THEMES } from '../deckforge/public/model.js';
+import { exportHTML, measureSlideOverflow } from '../deckforge/public/render.js';
 import { startApp, launchBrowser, ARTIFACTS, ROOT } from './harness.mjs';
 
 test('Proofpack customer document: privacy, accessible report and no external requests', { timeout: 60000 }, async () => {
@@ -29,15 +29,15 @@ test('Proofpack customer document: privacy, accessible report and no external re
   } finally { await browser.close(); await app.close(); }
 });
 
-test('Proofpack to Fielddeck: customer-safe deck imports, fits and exports offline', { timeout: 120000 }, async () => {
+test('Proofpack to Deckforge: customer-safe deck imports, fits and exports offline', { timeout: 120000 }, async () => {
   const proofpack = await startApp('proofpack');
-  const fielddeck = await startApp('fielddeck');
+  const deckforge = await startApp('deckforge');
   const browser = await launchBrowser();
   try {
     const initial = await (await fetch(proofpack.url + '/api/project')).json();
     const demo = await fetch(proofpack.url + '/api/demo', { method: 'POST', headers: { Origin: proofpack.url, 'Content-Type': 'application/json' }, body: JSON.stringify({ confirm: 'REPLACE', revision: initial.project.revision }) });
     assert.equal(demo.status, 200);
-    const response = await fetch(proofpack.url + '/api/export/fielddeck');
+    const response = await fetch(proofpack.url + '/api/export/deckforge');
     assert.equal(response.status, 200);
     const source = await response.text();
     const deck = validateDeck(JSON.parse(source));
@@ -47,9 +47,9 @@ test('Proofpack to Fielddeck: customer-safe deck imports, fits and exports offli
     assert.ok(source.includes('Operator access is not approved'));
     assert.ok(source.includes('re-review') || source.includes('unverified'));
     assert.ok(deck.slides.some(s => s.layout === 'next-steps' && s.actions.length));
-    await writeFile(ARTIFACTS + '/proofpack-readout.fielddeck.json', source);
+    await writeFile(ARTIFACTS + '/proofpack-readout.deckforge.json', source);
     const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
-    await page.goto(fielddeck.url);
+    await page.goto(deckforge.url);
     await page.locator('#edit-title').waitFor();
     await page.locator('#import-file').setInputFiles({ name: 'pilot-readout.json', mimeType: 'application/json', buffer: Buffer.from(source) });
     await page.locator('#confirm-accept').click();
@@ -57,8 +57,8 @@ test('Proofpack to Fielddeck: customer-safe deck imports, fits and exports offli
     await page.locator('#save-button').click();
     await page.waitForFunction(() => document.querySelector('#save-state').textContent === 'Saved locally');
     assert.equal(await page.locator('#edit-title').inputValue(), deck.slides[0].title);
-    const css = await readFile(ROOT + '/../fielddeck/public/slide.css', 'utf8');
-    const script = await readFile(ROOT + '/../fielddeck/public/presentation.js', 'utf8');
+    const css = await readFile(ROOT + '/../deckforge/public/slide.css', 'utf8');
+    const script = await readFile(ROOT + '/../deckforge/public/presentation.js', 'utf8');
     const rendered = await browser.newPage({ viewport: { width: 1920, height: 1200 } });
     const problems = [];
     for (const theme of THEMES) {
@@ -75,5 +75,5 @@ test('Proofpack to Fielddeck: customer-safe deck imports, fits and exports offli
     await rendered.setContent(exportHTML(deck, css, script));
     await rendered.screenshot({ path: ARTIFACTS + '/proofpack-readout.png', fullPage: true });
     await rendered.pdf({ path: ARTIFACTS + '/proofpack-readout.pdf', printBackground: true, preferCSSPageSize: true });
-  } finally { await browser.close(); await proofpack.close(); await fielddeck.close(); }
+  } finally { await browser.close(); await proofpack.close(); await deckforge.close(); }
 });

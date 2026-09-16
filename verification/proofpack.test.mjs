@@ -195,7 +195,7 @@ test('Proofpack: pilot isolation, review freshness, history, explicit decisions 
     assert.equal(await other.locator('#pilot-select').inputValue(), firstId);
     assert.equal((await (await fetch(app.url + '/api/project?pilot=' + secondId)).json()).project.criteria.length, 0);
     await page.locator('a[href="#handover"]').click();
-    const exported = await download(page, () => page.locator('#fielddeck-export').click(), 'proofpack-second-pilot.fielddeck.json');
+    const exported = await download(page, () => page.locator('#deckforge-export').click(), 'proofpack-second-pilot.deckforge.json');
     assert.equal(JSON.parse(await readFile(exported, 'utf8')).title, 'Independent second pilot');
     assert.ok(!(await readFile(exported, 'utf8')).includes('Alder & Finch'));
     assert.ok((await page.locator('.preview-frame').getAttribute('src')).includes(secondId));

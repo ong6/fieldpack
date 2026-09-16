@@ -1,5 +1,5 @@
 {
-  "name": "fieldwork-suite",
+  "name": "fieldpack",
   "version": "2.0.0",
   "private": true,
   "type": "module",
@@ -8,8 +8,8 @@
     "help": "node integration.mjs help",
     "setup": "node integration.mjs setup",
     "doctor": "node integration.mjs doctor",
-    "browser:install": "npm run browser:install --prefix fielddeck && npm exec --prefix verification -- playwright install chromium",
-    "test:products": "npm test --prefix fielddeck && npm test --prefix skillforge && npm test --prefix proofpack",
+    "browser:install": "npm run browser:install --prefix deckforge && npm exec --prefix verification -- playwright install chromium",
+    "test:products": "npm test --prefix deckforge && npm test --prefix skillforge && npm test --prefix proofpack",
     "test": "node integration.mjs doctor && npm test --prefix verification"
   }
 }

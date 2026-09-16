@@ -7,7 +7,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { PROJECTS } from './harness.mjs';
 const run = promisify(execFile);
-for (const name of ['fielddeck', 'skillforge', 'proofpack']) test(`${name}: packed install works without sibling products or source checkout`, { timeout: 120000 }, async t => {
+for (const name of ['deckforge', 'skillforge', 'proofpack']) test(`${name}: packed install works without sibling products or source checkout`, { timeout: 120000 }, async t => {
   const temporary = await mkdtemp(path.join(tmpdir(), `${name}-install-`)); t.after(() => rm(temporary, { recursive: true, force: true }));
   const { stdout } = await run('npm', ['pack', '--json', '--pack-destination', temporary], { cwd: path.join(PROJECTS, name) });
   const pack = JSON.parse(stdout)[0];
