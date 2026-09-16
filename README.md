@@ -1,8 +1,8 @@
 # fieldpack
 
-Three local-first tools for field engineering work, pinned together and verified as one suite.
+Three local-first tools for field engineering, pinned together and verified as one suite.
 
-Field engineering runs on three artifacts: the deck you present, the skill the agent used to produce it, and the evidence that says the pilot worked. I built one tool for each and kept them separate on purpose, so a customer can take deckforge without proofpack, and an agent can drive any of them alone. fieldpack is where the seams get tested. It pins the three as submodules and runs a verification suite across them: does a proofpack export import cleanly into deckforge and fit on every slide, does skillforge round-trip a deckforge skill folder byte for byte, do the browser UIs pass an axe accessibility audit at desktop and phone width, does each product still install from its packed tarball without its siblings.
+Field engineering runs on three artifacts: the deck you present, the skill the agent used to produce it, and the evidence that says the pilot worked. I built one tool for each and kept them separate on purpose. A customer can take deckforge without proofpack. An agent can drive any of them alone. fieldpack is where the seams get tested. It pins the three as submodules and runs a verification suite across them. Does a proofpack export import cleanly into deckforge and fit on every slide? Does skillforge round-trip a deckforge skill folder byte for byte? Do the browser UIs pass an axe accessibility audit at desktop and phone width? Does each product still install from its packed tarball without its siblings?
 
 | Tool | Does |
 |---|---|
@@ -44,3 +44,4 @@ Forges make things, packs bundle them.
 - [deckforge](https://github.com/ong6/deckforge) — agent-first presentation studio with a measured preflight
 - [proofpack](https://github.com/ong6/proofpack) — pilot evidence, review proposals and customer-safe handovers
 - [skillpack](https://github.com/ong6/skillpack) — the Claude Code and Codex skills used across all of these
+- [uipack](https://github.com/ong6/uipack) — React and SVG figure components behind the diagrams on junxiong.dev
