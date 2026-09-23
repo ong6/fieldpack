@@ -6,9 +6,8 @@ import { cp, mkdir, mkdtemp, readdir, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { PROJECTS, launchBrowser } from './harness.mjs';
 
-for (const [name, port] of [['deckforge', 4311], ['skillforge', 4312], ['proofpack', 4313]]) {
+for (const [name, port] of [['deckforge', 4311], ['proofpack', 4313]]) {
   test(`${name}: documented CLI starts at its local URL and serves the browser`, { timeout: 20000 }, async () => {
-    const executable = name === 'skillforge' ? 'server.mjs' : 'server.js';
     const project = path.join(PROJECTS, name);
     await mkdir(path.join(project, 'data'), { recursive: true });
     const isolated = await mkdtemp(path.join(project, 'data/cli-test-'));
@@ -16,7 +15,7 @@ for (const [name, port] of [['deckforge', 4311], ['skillforge', 4312], ['proofpa
       if (['data', 'test', 'node_modules', '.git'].includes(entry)) continue;
       await cp(path.join(project, entry), path.join(isolated, entry), { recursive: true });
     }
-    const child = spawn(process.execPath, [path.join(isolated, executable)], { stdio: ['ignore', 'pipe', 'pipe'] });
+    const child = spawn(process.execPath, [path.join(isolated, 'server.js')], { stdio: ['ignore', 'pipe', 'pipe'] });
     let output = '';
     const ready = new Promise((resolve, reject) => {
       child.stdout.on('data', b => { output += b; if (output.includes(`http://127.0.0.1:${port}`)) resolve(); });

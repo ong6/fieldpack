@@ -4,7 +4,6 @@ import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { product as skillforge } from '../skillforge/agent/product.mjs';
 import { product as proofpack } from '../proofpack/agent/product.mjs';
 import { product as deckforge } from '../deckforge/agent/product.mjs';
 import { createApp } from '../proofpack/server.js';
@@ -12,15 +11,13 @@ import { launchBrowser } from './harness.mjs';
 test('headless report to evidence to presentation preserves uncertainty and privacy; UI exposes proposals', async t => {
   const root = await mkdtemp(path.join(tmpdir(), 'agent-pipeline-')); t.after(() => rm(root, { recursive: true, force: true }));
   const call = product => async (name, input = {}) => (await product.execute(name, input, { workspace: path.join(root, product.name) })).data;
-  for (const p of [skillforge, proofpack, deckforge]) { await mkdir(path.join(root, p.name)); await p.init({ workspace: path.join(root, p.name) }); }
-  const sf = call(skillforge), pp = call(proofpack), fd = call(deckforge);
-  const candidate = (await sf('skill.search', { query: 'evidence' })).items[0];
-  const bundle = (await sf('evaluation.create', { expectedRevision: 0, payload: { title: 'Fictional pilot, no runs', candidateIds: [candidate.id], model: { id: 'unexecuted-fixture', capabilities: [] }, conditions: { systemPrompt: 'Use supplied evidence.', temperature: 0, tools: 'none', environment: 'test only', judge: 'not yet judged', repetitions: 1, maxOutputTokens: 100 }, cases: [{ id: 'missing', input: 'No measurements supplied.', expected: 'Identify missing measurements.' }] } })).bundle;
-  const report = (await sf('evaluation.report', { id: bundle.id })).report; assert.equal(report.status, 'insufficient-evidence');
+  for (const p of [proofpack, deckforge]) { await mkdir(path.join(root, p.name)); await p.init({ workspace: path.join(root, p.name) }); }
+  const pp = call(proofpack), fd = call(deckforge);
+  const report = { title: 'Fictional pilot, no runs', status: 'insufficient-evidence', runs: [] };
   const pilotId = (await pp('pilot.list')).defaultPilotId;
   const rev = async () => (await pp('pilot.get', { pilotId })).project.revision;
   await pp('record.edit', { pilotId, revision: await rev(), section: 'charter', action: 'update', record: { title: 'Fictional pilot', customer: 'Test organization', internalNotes: 'PRIVATE_PIPELINE_SENTINEL' } });
-  await pp('record.edit', { pilotId, revision: await rev(), section: 'evidence', action: 'add', recordId: 'report', record: { name: 'Conditional report', summary: 'No evaluation runs yet; insufficient evidence.', source: 'Skillforge', owner: 'Test agent', collectedAt: new Date().toISOString().slice(0, 10), staleAfterDays: 30, visibility: 'customer' } });
+  await pp('record.edit', { pilotId, revision: await rev(), section: 'evidence', action: 'add', recordId: 'report', record: { name: 'Conditional report', summary: 'No evaluation runs yet; insufficient evidence.', source: 'Fixture report', owner: 'Test agent', collectedAt: new Date().toISOString().slice(0, 10), staleAfterDays: 30, visibility: 'customer' } });
   await writeFile(path.join(root, 'proofpack/report.json'), JSON.stringify(report));
   await pp('attachment.add', { pilotId, revision: await rev(), evidenceId: 'report', file: 'report.json', name: 'report.json' });
   await pp('review.propose', { pilotId, revision: await rev(), outcome: 'hold', rationale: 'Wait for actual measurements.', actor: 'pipeline-agent' });

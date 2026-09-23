@@ -17,9 +17,8 @@ export async function startApp(name) {
   await mkdir(path.join(directory, 'data'), { recursive: true });
   await mkdir(ARTIFACTS, { recursive: true });
   const data = await mkdtemp(path.join(directory, 'data/browser-test-'));
-  const filename = name === 'skillforge' ? 'server.mjs' : 'server.js';
-  const module = await import(path.join(directory, filename));
-  const result = await module.createApp({ dataDir: data, dataFile: path.join(data, 'deck.json'), directory: data, dataPath: path.join(data, 'state.json') });
+  const module = await import(path.join(directory, 'server.js'));
+  const result = await module.createApp({ dataDir: data, dataFile: path.join(data, 'deck.json'), directory: data });
   const server = result.server || result;
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
   return {

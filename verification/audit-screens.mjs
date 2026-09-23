@@ -3,7 +3,7 @@ import { writeFile } from 'node:fs/promises';
 import { startApp, launchBrowser, ARTIFACTS, noHorizontalOverflow } from './harness.mjs';
 const browser = await launchBrowser();
 try {
-  for (const name of ['skillforge', 'proofpack']) {
+  for (const name of ['proofpack']) {
     const app = await startApp(name);
     try {
       const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
@@ -12,11 +12,9 @@ try {
       page.on('pageerror', e => errors.push(e.message));
       await page.goto(app.url);
       await page.locator('h1').waitFor();
-      if (name === 'proofpack') {
-        await page.getByRole('button', { name: 'Explore the fictional sample' }).click();
-        await page.locator('#confirm-proceed').click();
-        await page.getByText('Good work deserves good proof.').waitFor();
-      }
+      await page.getByRole('button', { name: 'Explore the fictional sample' }).click();
+      await page.locator('#confirm-proceed').click();
+      await page.getByText('Good work deserves good proof.').waitFor();
       const desktop = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
       await writeFile(ARTIFACTS + '/' + name + '-desktop-accessibility.json', JSON.stringify(desktop.violations, null, 2));
       await page.screenshot({ path: ARTIFACTS + '/' + name + '-desktop.png', fullPage: true });

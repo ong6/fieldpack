@@ -4,7 +4,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { writeFile } from 'node:fs/promises';
 import { startApp, launchBrowser, ARTIFACTS, noHorizontalOverflow } from './harness.mjs';
 
-for (const name of ['skillforge', 'proofpack']) {
+{
+  const name = 'proofpack';
   test(`${name}: populated workspace route accessibility and mobile layout`, { timeout: 120000 }, async () => {
     const app = await startApp(name);
     const browser = await launchBrowser();
@@ -14,14 +15,10 @@ for (const name of ['skillforge', 'proofpack']) {
       const page = await context.newPage();
       await page.goto(app.url);
       await page.locator('h1').waitFor();
-      if (name === 'proofpack') {
-        await page.getByRole('button', { name: 'Explore the fictional sample' }).click();
-        await page.locator('#confirm-proceed').click();
-        await page.getByText('Good work deserves good proof.').waitFor();
-      } else {
-        await page.locator('[data-action="select"]').first().click();
-      }
-      const routes = name === 'proofpack' ? ['library', 'overview', 'charter', 'criteria', 'evidence', 'coverage', 'risks', 'decisions', 'checklist', 'handover', 'help'] : ['discover', 'profiles', 'compose', 'compare', 'evidence', 'library', 'workspace', 'help'];
+      await page.getByRole('button', { name: 'Explore the fictional sample' }).click();
+      await page.locator('#confirm-proceed').click();
+      await page.getByText('Good work deserves good proof.').waitFor();
+      const routes = ['library', 'overview', 'charter', 'criteria', 'evidence', 'coverage', 'risks', 'decisions', 'checklist', 'handover', 'help'];
       for (const width of [1440, 390]) {
         await page.setViewportSize({ width, height: 1000 });
         for (const route of routes) {

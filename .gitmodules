@@ -1,9 +1,6 @@
 [submodule "deckforge"]
 	path = deckforge
 	url = https://github.com/ong6/deckforge.git
-[submodule "skillforge"]
-	path = skillforge
-	url = https://github.com/ong6/skillforge.git
 [submodule "proofpack"]
 	path = proofpack
 	url = https://github.com/ong6/proofpack.git
