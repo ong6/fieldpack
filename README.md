@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> **Archived on 2026-10-02.** This repository is read-only. fieldpack pinned deckforge and proofpack, both now archived. Their successors are the field-engineering skills in [ong6/skills](https://github.com/ong6/skills): [`create-fde-deck`](https://github.com/ong6/skills/tree/main/skills/create-fde-deck), [`review-fde-deck`](https://github.com/ong6/skills/tree/main/skills/review-fde-deck) and [`track-pilot-evidence`](https://github.com/ong6/skills/tree/main/skills/track-pilot-evidence). The README below is kept as history.
+
 # fieldpack
 
 Two local-first tools for field engineering, pinned together and verified as one suite.
